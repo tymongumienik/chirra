@@ -1,8 +1,8 @@
-import type { Session } from "lucia";
-import type { WithPrisma } from "@/app/db";
 import { hash, verify } from "argon2";
+import type { Session } from "lucia";
+import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
-import { cookies, headers } from "next/headers";
+import type { WithPrisma } from "@/types/database";
 
 // TODO: add more rigorous input validation
 
@@ -58,7 +58,7 @@ export const signUp = async ({
     return {
       success: true,
     };
-  } catch (e) {
+  } catch (_e) {
     return {
       success: false,
       error: "Unknown error",

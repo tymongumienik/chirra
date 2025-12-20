@@ -1,7 +1,7 @@
 import cors, { type HTTPMethod } from "@elysiajs/cors";
-import { Elysia, t } from "elysia";
-import { authMiddleware } from "./middleware";
+import { Elysia } from "elysia";
 import authRoutes from "./auth";
+import { authMiddleware } from "./middleware";
 import userRoutes from "./user";
 
 const corsConfig = {

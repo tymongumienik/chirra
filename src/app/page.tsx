@@ -5,8 +5,13 @@ import { api } from "./libs/api";
 
 export default function Home() {
   useEffect(() => {
-    window.api = api;
-  }, [])
+    if (
+      process.env.NODE_ENV === "development" &&
+      typeof window !== "undefined"
+    ) {
+      window.api = api;
+    }
+  }, []);
 
   return (
     <div>

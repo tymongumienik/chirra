@@ -1,7 +1,7 @@
 // Taken from https://raw.githubusercontent.com/altinthaqi/next-elysia-template/refs/heads/main/app/api/%5B%5B...routes%5D%5D/auth/middleware.ts
 import Elysia from "elysia";
-import { verifyRequestOrigin } from "lucia";
 import type { Session, User } from "lucia";
+import { verifyRequestOrigin } from "lucia";
 import { lucia } from "@/app/libs/auth";
 
 export const authMiddleware = new Elysia().derive(
@@ -38,7 +38,7 @@ export const authMiddleware = new Elysia().derive(
     }
 
     const { session, user } = await lucia.validateSession(sessionId);
-    if (session && session.fresh) {
+    if (session?.fresh) {
       const sessionCookie = lucia.createSessionCookie(session.id);
       context.cookie[sessionCookie.name].set({
         value: sessionCookie.value,
