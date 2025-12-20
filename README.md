@@ -1,4 +1,4 @@
-# chirra
+# Chirra
 
 > Chirra is in very early development and is not ready for any production use.
 
