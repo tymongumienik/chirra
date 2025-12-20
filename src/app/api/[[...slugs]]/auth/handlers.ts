@@ -3,8 +3,8 @@ import { hash, verify } from "argon2";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
-import type { WithPrisma } from "@/types/database";
 import { sendVerificationEmail } from "@/app/libs/email";
+import type { WithPrisma } from "@/types/database";
 
 // TODO: add more rigorous input validation
 // TODO: replace email API responses with redirects to frontend

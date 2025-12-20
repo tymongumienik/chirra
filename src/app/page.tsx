@@ -13,7 +13,7 @@ export default function Home() {
     }
   }, []);
 
-  const register =() => {
+  const register = () => {
     api["sign-up"].post({
       username: window.prompt("username")!,
       password: window.prompt("password")!,

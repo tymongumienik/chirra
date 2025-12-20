@@ -29,7 +29,14 @@ const VerificationEmail = ({
   <Html>
     <Head />
     <Preview>Verify your email to complete registration</Preview>
-    <Body style={{ fontFamily: "sans-serif", backgroundColor: "#f0f0f0", margin: 0, padding: 0 }}>
+    <Body
+      style={{
+        fontFamily: "sans-serif",
+        backgroundColor: "#f0f0f0",
+        margin: 0,
+        padding: 0,
+      }}
+    >
       <Container
         style={{
           margin: "40px auto",
@@ -72,7 +79,9 @@ export async function sendVerificationEmail(to: string, token: string) {
 
   const verificationUrl = `${process.env.EMAIL_APP_URL}/api/verify-email?token=${token}`;
 
-  const emailHtml = await render(<VerificationEmail verificationUrl={verificationUrl} />);
+  const emailHtml = await render(
+    <VerificationEmail verificationUrl={verificationUrl} />,
+  );
 
   await transporter.sendMail({
     from: `Chirra <${process.env.EMAIL_USER}>`,
