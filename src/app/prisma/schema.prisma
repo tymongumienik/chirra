@@ -8,15 +8,31 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(cuid())
-  email       String    @unique
-  username    String    @unique
-  displayname String
-  avatar      String?   @default("/default-avatar.png")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  password    String
-  sessions    Session[]
+  id                String             @id @default(cuid())
+  email             String             @unique
+  username          String             @unique
+  displayname       String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  password          String
+  emailVerification EmailVerification?
+  profile           Profile?
+  sessions          Session[]
+}
+
+model EmailVerification {
+  userId String @id @unique
+  token  String @unique @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Profile {
+  userId   String  @id @unique
+  avatar   String? @default("/default-avatar.png")
+  bio      String?
+  pronouns String?
+  location String?
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Session {

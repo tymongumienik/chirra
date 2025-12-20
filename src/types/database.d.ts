@@ -1,3 +1,5 @@
+import type { PrismaClient } from "@prisma/client";
+
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
@@ -12,5 +14,5 @@ export interface DatabaseUserAttributes {
 }
 
 export type WithPrisma = {
-  prisma: typeof prismaClient;
+  prisma: PrismaClient;
 };

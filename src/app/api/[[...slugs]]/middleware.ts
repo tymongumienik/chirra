@@ -1,4 +1,5 @@
 // Taken from https://raw.githubusercontent.com/altinthaqi/next-elysia-template/refs/heads/main/app/api/%5B%5B...routes%5D%5D/auth/middleware.ts
+import "server-only";
 import Elysia from "elysia";
 import type { Session, User } from "lucia";
 import { verifyRequestOrigin } from "lucia";

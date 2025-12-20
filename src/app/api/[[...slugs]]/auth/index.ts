@@ -1,7 +1,8 @@
+import "server-only";
 import Elysia from "elysia";
 import prismaService from "@/app/db";
 import { authMiddleware } from "../middleware";
-import { signIn, signOut, signUp } from "./handlers";
+import { signIn, signOut, signUp, verifyEmail } from "./handlers";
 import { authSchema } from "./schema";
 
 const authRoutes = new Elysia()
@@ -14,6 +15,9 @@ const authRoutes = new Elysia()
   .post("/sign-in", async ({ body, prisma }) => signIn({ body, prisma }), {
     body: "auth.sign-in",
   })
-  .get("/sign-out", async ({ session }) => signOut({ session }));
+  .get("/sign-out", async ({ session }) => signOut({ session }))
+  .get("/verify-email", async ({ query, prisma }) =>
+    verifyEmail({ query, prisma }),
+  );
 
 export default authRoutes;

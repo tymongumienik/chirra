@@ -13,6 +13,14 @@ export default function Home() {
     }
   }, []);
 
+  const register =() => {
+    api["sign-up"].post({
+      username: window.prompt("username")!,
+      password: window.prompt("password")!,
+      email: window.prompt("email")!,
+    });
+  };
+
   return (
     <div>
       <h1 className="geist">Chirra</h1>
@@ -20,6 +28,9 @@ export default function Home() {
         This is just an empty boilerplate page. There will be something here, I
         promise.
       </span>
+      <button type="button" onClick={register}>
+        Create Account
+      </button>
     </div>
   );
 }

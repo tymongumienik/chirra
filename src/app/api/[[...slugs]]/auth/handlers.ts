@@ -1,10 +1,13 @@
+import "server-only";
 import { hash, verify } from "argon2";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
 import type { WithPrisma } from "@/types/database";
+import { sendVerificationEmail } from "@/app/libs/email";
 
 // TODO: add more rigorous input validation
+// TODO: replace email API responses with redirects to frontend
 
 export const signUp = async ({
   body,
@@ -40,30 +43,56 @@ export const signUp = async ({
 
   const passwordHash = await hash(body.password);
 
+  let user: { id: string; emailVerification: { token: string } };
+
   try {
-    const user = await prisma.user.create({
+    user = (await prisma.user.create({
       data: {
         username: body.username,
         displayname: body.username,
         email: body.email,
         password: passwordHash,
+        profile: {
+          create: {},
+        },
+        emailVerification: {
+          create: {},
+        },
       },
-    });
-
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-
-    (await cookies()).set(sessionCookie.name, sessionCookie.value);
-
-    return {
-      success: true,
-    };
+      select: {
+        id: true,
+        emailVerification: true,
+      },
+    })) as { id: string; emailVerification: { token: string } };
   } catch (_e) {
     return {
       success: false,
       error: "Unknown error",
     };
   }
+
+  try {
+    await sendVerificationEmail(body.email, user.emailVerification.token);
+    const session = await lucia.createSession(user.id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+
+    (await cookies()).set(sessionCookie.name, sessionCookie.value);
+  } catch (_e) {
+    await prisma.user.delete({
+      where: {
+        id: user.id,
+      },
+    });
+
+    return {
+      success: false,
+      error: "Unknown error",
+    };
+  }
+
+  return {
+    success: true,
+  };
 };
 
 export const signIn = async ({
@@ -113,6 +142,36 @@ export const signOut = async ({ session }: { session: Session | null }) => {
   const sessionCookie = lucia.createBlankSessionCookie();
 
   (await cookies()).set(sessionCookie.name, sessionCookie.value);
+
+  return {
+    success: true,
+  };
+};
+
+export const verifyEmail = async ({
+  query,
+  prisma,
+}: {
+  query: Record<string, string>;
+} & WithPrisma) => {
+  if (!Object.hasOwn(query, "token")) {
+    return {
+      success: false,
+      error: "Missing token",
+    };
+  }
+  try {
+    await prisma.emailVerification.delete({
+      where: {
+        token: query.token,
+      },
+    });
+  } catch (_e) {
+    return {
+      success: false,
+      error: "Invalid token",
+    };
+  }
 
   return {
     success: true,

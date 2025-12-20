@@ -1,3 +1,4 @@
+import "server-only";
 import { t } from "elysia";
 
 export const authSchema = {
@@ -5,7 +6,6 @@ export const authSchema = {
     username: t.String({
       minLength: 5,
       pattern: "^[a-zA-Z0-9_]+$",
-      error: "Username must be 5+ characters and alphanumeric",
     }),
     password: t.String({
       minLength: 8,

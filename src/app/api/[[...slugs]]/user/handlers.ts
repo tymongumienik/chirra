@@ -1,4 +1,5 @@
-import { User } from "lucia";
+import "server-only";
+import type { User } from "lucia";
 
 export const whoAmI = ({ user }: { user: User | null }) => {
   if (!user) {

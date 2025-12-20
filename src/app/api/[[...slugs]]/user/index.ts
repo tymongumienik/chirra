@@ -1,3 +1,4 @@
+import "server-only";
 import Elysia from "elysia";
 import prismaService from "@/app/db";
 import { authMiddleware } from "../middleware";

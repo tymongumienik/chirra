@@ -1,3 +1,4 @@
+import "server-only";
 import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import authRoutes from "./auth";
