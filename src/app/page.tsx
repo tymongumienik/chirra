@@ -1,6 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+import { api } from "./libs/api";
+
 export default function Home() {
+  useEffect(() => {
+    window.api = api;
+  }, [])
+
   return (
     <div>
       <h1 className="geist">Chirra</h1>

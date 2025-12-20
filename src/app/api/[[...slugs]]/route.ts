@@ -1,7 +1,8 @@
 import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia, t } from "elysia";
-import { authMiddleware } from "./auth/middleware";
+import { authMiddleware } from "./middleware";
 import authRoutes from "./auth";
+import userRoutes from "./user";
 
 const corsConfig = {
   origin: "*",
@@ -15,7 +16,8 @@ const corsConfig = {
 const app = new Elysia({ prefix: "/api" })
   .use(cors(corsConfig))
   .use(authMiddleware)
-  .use(authRoutes);
+  .use(authRoutes)
+  .use(userRoutes);
 
 export const GET = app.fetch;
 export const POST = app.fetch;

@@ -1,7 +1,7 @@
 import Elysia from "elysia";
 import prismaService from "@/app/db";
 import { signIn, signOut, signUp } from "./handlers";
-import { authMiddleware } from "./middleware";
+import { authMiddleware } from "../middleware";
 import { authSchema } from "./schema";
 
 const authRoutes = new Elysia()
