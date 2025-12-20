@@ -1,4 +1,4 @@
-import cors, { HTTPMethod } from "@elysiajs/cors";
+import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia, t } from "elysia";
 import { authMiddleware } from "./auth/middleware";
 import authRoutes from "./auth";

@@ -1,5 +1,5 @@
 import { treaty } from "@elysiajs/eden";
-import { API } from "../api";
+import type { API } from "../api";
 
 export const api = treaty<API>(
   typeof window === "undefined"
