@@ -10,16 +10,22 @@ import {
 } from "@react-email/components";
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
+import { env } from "./env";
+import { logger } from "./logger";
+
+// TODO: create frontend password verify/reset pages
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_PORT === "465",
+  host: env.EMAIL_HOST,
+  port: env.EMAIL_PORT,
+  secure: env.EMAIL_SECURE,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: env.EMAIL_USER,
+    pass: env.EMAIL_PASS,
   },
 });
+
+const sender = `Chirra <${env.EMAIL_USER}>`;
 
 const VerificationEmail = ({
   verificationUrl,
@@ -74,19 +80,96 @@ const VerificationEmail = ({
   </Html>
 );
 
+const PasswordResetEmail = ({ resetUrl }: { resetUrl: string }) => (
+  <Html>
+    <Head />
+    <Preview>Reset your password</Preview>
+    <Body
+      style={{
+        fontFamily: "sans-serif",
+        backgroundColor: "#f0f0f0",
+        margin: 0,
+        padding: 0,
+      }}
+    >
+      <Container
+        style={{
+          margin: "40px auto",
+          padding: "20px",
+          backgroundColor: "#ffffff",
+          borderRadius: "8px",
+        }}
+      >
+        <Heading style={{ color: "#333333", fontSize: "24px" }}>
+          Reset Your Password
+        </Heading>
+        <Text style={{ color: "#555555", fontSize: "16px" }}>
+          Click the button below to reset your password. This link will expire
+          in 1 hour.
+        </Text>
+        <a
+          href={resetUrl}
+          style={{
+            display: "inline-block",
+            marginTop: "20px",
+            padding: "12px 24px",
+            backgroundColor: "#4f46e5",
+            color: "#ffffff",
+            textDecoration: "none",
+            borderRadius: "6px",
+          }}
+        >
+          Reset Password
+        </a>
+        <Text style={{ marginTop: "20px", color: "#999999", fontSize: "12px" }}>
+          If you did not request a password reset, you can safely ignore this
+          email.
+        </Text>
+      </Container>
+    </Body>
+  </Html>
+);
+
 export async function sendVerificationEmail(to: string, token: string) {
-  if (!process.env.EMAIL_APP_URL) throw new Error("EMAIL_APP_URL not set");
+  // TODO: implement line below
+  const verificationUrl = `${env.EMAIL_APP_URL}/verify-email/${token}`;
 
-  const verificationUrl = `${process.env.EMAIL_APP_URL}/api/verify-email?token=${token}`;
+  try {
+    const emailHtml = await render(
+      <VerificationEmail verificationUrl={verificationUrl} />,
+    );
 
-  const emailHtml = await render(
-    <VerificationEmail verificationUrl={verificationUrl} />,
-  );
+    await transporter.sendMail({
+      from: sender,
+      to,
+      subject: "Verify your email",
+      html: emailHtml,
+    });
 
-  await transporter.sendMail({
-    from: `Chirra <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "Verify your email",
-    html: emailHtml,
-  });
+    logger.info("Verification email sent", { to });
+  } catch (error) {
+    logger.error("Failed to send verification email", error, { to });
+    throw error;
+  }
+}
+
+export async function sendPasswordResetEmail(to: string, token: string) {
+  // TODO: implement line below
+  const resetUrl = `${env.EMAIL_APP_URL}/reset-password/${token}`;
+
+  try {
+    const emailHtml = await render(<PasswordResetEmail resetUrl={resetUrl} />);
+
+    await transporter.sendMail({
+      from: sender,
+      to,
+      subject: "Reset your password",
+      html: emailHtml,
+    });
+
+    logger.info("Password reset email sent", { to });
+  } catch (error) {
+    logger.error("Failed to send password reset email", error, { to });
+    throw error;
+  }
 }

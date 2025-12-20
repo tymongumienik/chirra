@@ -1,15 +1,15 @@
 import "server-only";
 import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
+import { env } from "@/app/libs/env";
 import authRoutes from "./auth";
 import { authMiddleware } from "./middleware";
+import passwordResetRoutes from "./password-reset";
+import sessionRoutes from "./sessions";
 import userRoutes from "./user";
 
 const corsConfig = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? process.env.ALLOWED_ORIGINS?.split(",")
-      : "*",
+  origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : "*",
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"] as HTTPMethod[],
   allowedHeaders: "*",
   exposedHeaders: "*",
@@ -21,7 +21,9 @@ const app = new Elysia({ prefix: "/api" })
   .use(cors(corsConfig))
   .use(authMiddleware)
   .use(authRoutes)
-  .use(userRoutes);
+  .use(userRoutes)
+  .use(passwordResetRoutes)
+  .use(sessionRoutes);
 
 export const GET = app.fetch;
 export const POST = app.fetch;
