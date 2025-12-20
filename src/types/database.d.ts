@@ -9,8 +9,6 @@ declare module "lucia" {
 
 export interface DatabaseUserAttributes {
   username: string;
-  displayname: string;
-  avatar: string | null;
 }
 
 export type WithPrisma = {
