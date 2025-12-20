@@ -75,7 +75,7 @@ const VerificationEmail = ({
 );
 
 export async function sendVerificationEmail(to: string, token: string) {
-  // if (!process.env.EMAIL_APP_URL) throw new Error("EMAIL_APP_URL not set");
+  if (!process.env.EMAIL_APP_URL) throw new Error("EMAIL_APP_URL not set");
 
   const verificationUrl = `${process.env.EMAIL_APP_URL}/api/verify-email?token=${token}`;
 

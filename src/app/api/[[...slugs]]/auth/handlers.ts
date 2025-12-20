@@ -15,84 +15,70 @@ export const signUp = async ({
 }: {
   body: { username: string; password: string; email: string };
 } & WithPrisma) => {
-  const usernameExists = await prisma.user.findUnique({
+  const existingUser = await prisma.user.findFirst({
     where: {
-      username: body.username,
+      OR: [{ username: body.username }, { email: body.email }],
     },
   });
 
-  if (usernameExists) {
+  if (existingUser) {
     return {
       success: false,
-      error: "Username taken",
-    };
-  }
-
-  const emailExists = await prisma.user.findUnique({
-    where: {
-      email: body.email,
-    },
-  });
-
-  if (emailExists) {
-    return {
-      success: false,
-      error: "Email taken",
+      error: "Username or email taken",
     };
   }
 
   const passwordHash = await hash(body.password);
 
-  let user: { id: string; emailVerification: { token: string } };
-
   try {
-    user = (await prisma.user.create({
-      data: {
-        username: body.username,
-        displayname: body.username,
-        email: body.email,
-        password: passwordHash,
-        profile: {
-          create: {},
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          username: body.username,
+          displayname: body.username,
+          email: body.email,
+          password: passwordHash,
+          profile: {
+            create: {},
+          },
+          emailVerification: {
+            create: {},
+          },
         },
-        emailVerification: {
-          create: {},
+        select: {
+          id: true,
+          emailVerification: {
+            select: {
+              token: true,
+            },
+          },
         },
-      },
-      select: {
-        id: true,
-        emailVerification: true,
-      },
-    })) as { id: string; emailVerification: { token: string } };
-  } catch (_e) {
-    return {
-      success: false,
-      error: "Unknown error",
-    };
-  }
+      });
 
-  try {
-    await sendVerificationEmail(body.email, user.emailVerification.token);
-    const session = await lucia.createSession(user.id, {});
+      if (!user.emailVerification) {
+        throw new Error("Failed to create email verification");
+      }
+
+      await sendVerificationEmail(body.email, user.emailVerification.token);
+
+      return user;
+    });
+
+    const session = await lucia.createSession(result.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
     (await cookies()).set(sessionCookie.name, sessionCookie.value);
-  } catch (_e) {
-    await prisma.user.delete({
-      where: {
-        id: user.id,
-      },
-    });
 
     return {
+      success: true,
+    };
+  } catch (e) {
+    console.error("Sign up failed:", e);
+    return {
       success: false,
-      error: "Unknown error",
+      error: "Failed to create account",
     };
   }
-
-  return {
-    success: true,
-  };
 };
 
 export const signIn = async ({
@@ -104,6 +90,11 @@ export const signIn = async ({
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ username: body.usernameOrEmail }, { email: body.usernameOrEmail }],
+    },
+    select: {
+      id: true,
+      password: true,
+      emailVerification: true,
     },
   });
 
@@ -119,6 +110,13 @@ export const signIn = async ({
     return {
       success: false,
       error: "Invalid credentials",
+    };
+  }
+
+  if (user.emailVerification !== null) {
+    return {
+      success: false,
+      error: "Please verify your email before signing in",
     };
   }
 

@@ -9,15 +9,9 @@ const authRoutes = new Elysia()
   .model(authSchema)
   .use(prismaService)
   .use(authMiddleware)
-  .post("/sign-up", async ({ body, prisma }) => signUp({ body, prisma }), {
-    body: "auth.sign-up",
-  })
-  .post("/sign-in", async ({ body, prisma }) => signIn({ body, prisma }), {
-    body: "auth.sign-in",
-  })
-  .get("/sign-out", async ({ session }) => signOut({ session }))
-  .get("/verify-email", async ({ query, prisma }) =>
-    verifyEmail({ query, prisma }),
-  );
+  .post("/sign-up", signUp, { body: "auth.sign-up" })
+  .post("/sign-in", signIn, { body: "auth.sign-in" })
+  .get("/sign-out", signOut)
+  .get("/verify-email", verifyEmail);
 
 export default authRoutes;
