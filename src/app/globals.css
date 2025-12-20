@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 .geist {
-    font-family: "Geist", sans-serif;
+  font-family: "Geist", sans-serif;
 }
 
 .geist-mono {
-    font-family: "Geist Mono", monospace;
+  font-family: "Geist Mono", monospace;
 }
