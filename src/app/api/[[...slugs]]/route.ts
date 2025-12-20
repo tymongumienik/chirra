@@ -6,7 +6,10 @@ import { authMiddleware } from "./middleware";
 import userRoutes from "./user";
 
 const corsConfig = {
-  origin: "*",
+  origin:
+    process.env.NODE_ENV === "production"
+      ? process.env.ALLOWED_ORIGINS?.split(",")
+      : "*",
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"] as HTTPMethod[],
   allowedHeaders: "*",
   exposedHeaders: "*",
