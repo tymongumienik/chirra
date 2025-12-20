@@ -14,7 +14,7 @@ export default function Home() {
   }, []);
 
   const register = () => {
-    api["sign-up"].post({
+    api["register"].post({
       username: window.prompt("username")!,
       password: window.prompt("password")!,
       email: window.prompt("email")!,
