@@ -59,7 +59,7 @@ bun run format   # Format code
 - [ ] Create frontend for chat interface 
 - [ ] Password reset
 - [ ] Profile settings page
-- [ ] Rate limiting
+- [x] Rate limiting
 - [ ] Tests
 - [ ] Production deployment
 
