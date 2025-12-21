@@ -7,6 +7,7 @@ import { sendVerificationEmail } from "@/app/libs/email";
 import {
   AuthenticationError,
   ConflictError,
+  type ErrorResponse,
   formatErrorResponse,
   NotFoundError,
   ValidationError,
@@ -107,7 +108,7 @@ export const login = async ({
   prisma,
 }: {
   body: { usernameOrEmail: string; password: string };
-} & WithPrisma) => {
+} & WithPrisma): Promise<ErrorResponse | { success: true }> => {
   try {
     const usernameOrEmail = body.usernameOrEmail;
 

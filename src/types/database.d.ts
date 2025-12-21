@@ -14,3 +14,8 @@ export interface DatabaseUserAttributes {
 export type WithPrisma = {
   prisma: PrismaClient;
 };
+
+export type LuciaContextValue = {
+  user: User | null;
+  session: Session | null;
+};

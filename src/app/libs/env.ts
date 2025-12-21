@@ -47,7 +47,7 @@ export const env = {
     process.env.EMAIL_PORT === "465",
 
   // Rate Limiting
-  RATE_LIMIT_MAX_REQUESTS: getEnvVarNumber("RATE_LIMIT_MAX_REQUESTS", 5),
+  RATE_LIMIT_MAX_REQUESTS: getEnvVarNumber("RATE_LIMIT_MAX_REQUESTS", 100),
   RATE_LIMIT_WINDOW_MS: getEnvVarNumber("RATE_LIMIT_WINDOW_MS", 15 * 60 * 1000),
 
   // Environment
