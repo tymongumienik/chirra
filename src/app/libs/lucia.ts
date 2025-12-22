@@ -1,11 +1,12 @@
-import { validateRequest } from "./auth";
+"use server";
 
 export const luciaRequestData = async () => {
-  if (typeof window === "undefined") {
-    return await validateRequest();
-  }
+  const prefix =
+    typeof window === "undefined"
+      ? `https://localhost:${process.env.PORT ?? 3000}`
+      : window.location.origin;
 
-  const res = await fetch(`${window.location.origin}/api/lucia`, {
+  const res = await fetch(`${prefix}/api/lucia`, {
     cache: "no-store",
   });
   const result = await res.json();
