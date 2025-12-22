@@ -2,7 +2,7 @@
 
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { api } from "@/app/libs/api";
 import { useLuciaContext } from "@/app/libs/lucia-context";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default () => {
+  const router = useRouter();
   const lucia = useLuciaContext();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -22,7 +23,8 @@ export default () => {
   const confirmPasswordField = useRef<HTMLInputElement | null>(null);
 
   if (lucia.user) {
-    return redirect("/app");
+    router.push("/app");
+    return;
   }
 
   const action = async (e: FormEvent<HTMLFormElement>) => {
