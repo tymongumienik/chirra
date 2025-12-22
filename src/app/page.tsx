@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { luciaRequestData } from "@/app/libs/auth";
+import { luciaRequestData } from "@/app/libs/lucia";
 
 export default async () => {
   const { user } = await luciaRequestData();

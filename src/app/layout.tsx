@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { geistMono, geistSans, inter } from "./fonts";
-import { luciaRequestData } from "./libs/auth";
+import { luciaRequestData } from "./libs/lucia";
 import { LuciaProvider } from "./libs/lucia-context";
 
 export const metadata: Metadata = {
