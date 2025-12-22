@@ -1,6 +1,6 @@
 import "server-only";
+import type { Context } from "elysia";
 import type { Session, User } from "lucia";
-import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
 import {
   AppError,
@@ -62,10 +62,12 @@ export const revokeSession = async ({
   session,
   body,
   prisma,
+  cookie,
 }: {
   user: User | null;
   session: Session | null;
   body: { sessionId: string };
+  cookie: Context["cookie"];
 } & WithPrisma) => {
   try {
     if (!user || !session) {
@@ -88,9 +90,8 @@ export const revokeSession = async ({
     }
 
     await lucia.invalidateSession(sessionId);
-
     if (sessionId === session.id) {
-      (await cookies()).delete(lucia.sessionCookieName);
+      cookie[lucia.sessionCookieName].remove();
     }
 
     logger.info("Session revoked", {

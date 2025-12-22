@@ -1,14 +1,14 @@
-"use server";
-
 import { cookies } from "next/headers";
-import { lucia } from "../../libs/auth";
 import { NextResponse } from "next/server";
+import { lucia } from "../../libs/auth";
 
 export async function GET() {
   const sessionId =
     (await cookies()).get(lucia.sessionCookieName)?.value ?? null;
 
-  if (!sessionId) return NextResponse.json({ user: null, session: null });
+  if (!sessionId) {
+    return NextResponse.json({ user: null, session: null });
+  }
 
   const result = await lucia.validateSession(sessionId);
 
@@ -20,6 +20,7 @@ export async function GET() {
       sessionCookie.attributes,
     );
   }
+
   if (!result.session) {
     (await cookies()).delete(lucia.sessionCookieName);
   }

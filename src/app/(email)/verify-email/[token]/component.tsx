@@ -1,12 +1,10 @@
 "use client";
 
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/app/libs/api";
 
 export default ({ token }: { token: string }) => {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,10 +26,9 @@ export default ({ token }: { token: string }) => {
         return;
       }
 
-      router.refresh();
-      router.push("/app");
+      window.location.href = "/app"; // hard redirect
     })();
-  }, [token, router]);
+  }, [token]);
 
   return (
     <div className="inter min-h-screen flex items-center justify-center bg-background p-8 text-4xl text-foreground">

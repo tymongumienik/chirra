@@ -2,7 +2,6 @@
 
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { api } from "@/app/libs/api";
 import { useLuciaContext } from "@/app/libs/lucia-context";
@@ -11,7 +10,6 @@ import { Input } from "@/components/ui/input";
 
 export default () => {
   const lucia = useLuciaContext();
-  const router = useRouter();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +18,7 @@ export default () => {
   const passwordField = useRef<HTMLInputElement | null>(null);
 
   if (lucia.user) {
-    router.push("/app");
+    window.location.href = "/app"; // hard redirect
     return;
   }
 
@@ -54,8 +52,7 @@ export default () => {
     }
 
     if (data.success) {
-      router.refresh();
-      router.push("/app");
+      window.location.href = "/app"; // hard redirect
       return;
     }
   };

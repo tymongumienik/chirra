@@ -1,15 +1,15 @@
-"use server";
+import { cookies } from "next/headers";
+import { lucia } from "./auth";
 
 export const luciaRequestData = async () => {
-  const prefix =
-    typeof window === "undefined"
-      ? `https://localhost:${process.env.PORT ?? 3000}`
-      : window.location.origin;
+  const sessionId =
+    (await cookies()).get(lucia.sessionCookieName)?.value ?? null;
 
-  const res = await fetch(`${prefix}/api/lucia`, {
-    cache: "no-store",
-  });
-  const result = await res.json();
+  if (!sessionId) {
+    return { user: null, session: null };
+  }
+
+  const result = await lucia.validateSession(sessionId);
 
   return result;
 };

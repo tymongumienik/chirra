@@ -9,7 +9,7 @@ import sessionRoutes from "./sessions";
 import userRoutes from "./user";
 
 const corsConfig = {
-  origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : "*",
+  origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"] as HTTPMethod[],
   allowedHeaders: "*",
   exposedHeaders: "*",

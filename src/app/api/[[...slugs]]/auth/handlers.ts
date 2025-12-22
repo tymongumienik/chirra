@@ -1,7 +1,7 @@
 import "server-only";
 import { hash, verify } from "argon2";
+import type { Context } from "elysia";
 import type { Session } from "lucia";
-import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
 import { sendVerificationEmail } from "@/app/libs/email";
 import {
@@ -102,8 +102,10 @@ export const register = async ({
 export const login = async ({
   body,
   prisma,
+  cookie,
 }: {
   body: { usernameOrEmail: string; password: string };
+  cookie: Context["cookie"];
 } & WithPrisma): Promise<ErrorResponse | { success: true }> => {
   try {
     const usernameOrEmail = body.usernameOrEmail;
@@ -136,7 +138,10 @@ export const login = async ({
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    (await cookies()).set(sessionCookie.name, sessionCookie.value);
+    cookie[sessionCookie.name].set({
+      value: sessionCookie.value,
+      ...sessionCookie.attributes,
+    });
 
     logger.info("User logged in", { userId: user.id, username: user.username });
 
@@ -152,14 +157,20 @@ export const login = async ({
   }
 };
 
-export const logout = async ({ session }: { session: Session | null }) => {
+export const logout = async ({
+  session,
+  cookie,
+}: {
+  session: Session | null;
+  cookie: Context["cookie"];
+}) => {
   try {
     if (!session) {
       throw new AuthenticationError("No active session");
     }
 
     await lucia.invalidateSession(session.id);
-    (await cookies()).delete(lucia.sessionCookieName);
+    cookie[lucia.sessionCookieName].remove();
 
     logger.info("User logged out", { userId: session.userId });
 
@@ -178,8 +189,10 @@ export const logout = async ({ session }: { session: Session | null }) => {
 export const verifyEmail = async ({
   query,
   prisma,
+  cookie,
 }: {
   query: Record<string, string>;
+  cookie: Context["cookie"];
 } & WithPrisma) => {
   try {
     if (!Object.hasOwn(query, "token")) {
@@ -215,7 +228,10 @@ export const verifyEmail = async ({
     const session = await lucia.createSession(verification.userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    (await cookies()).set(sessionCookie.name, sessionCookie.value);
+    cookie[sessionCookie.name].set({
+      value: sessionCookie.value,
+      ...sessionCookie.attributes,
+    });
 
     logger.info("Email verified", { userId: verification.userId });
 
