@@ -158,7 +158,7 @@ export default () => {
               {loading ? <LoaderCircle className="animate-spin" /> : "Sign up"}
             </Button>
 
-            <div className="text-center text-sm  text-muted-foreground gap-2">
+            <div className="text-center text-sm text-muted-foreground gap-2">
               Already have an account?{" "}
               <Link
                 href="/login"
