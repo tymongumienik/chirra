@@ -9,6 +9,6 @@ const userRoutes = new Elysia()
   .model(userSchema)
   .use(prismaService)
   .use(authMiddleware)
-  .get("/who-am-i", async ({ user }) => whoAmI({ user }));
+  .get("/who-am-i", whoAmI);
 
 export default userRoutes;
