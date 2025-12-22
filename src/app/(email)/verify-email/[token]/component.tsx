@@ -28,6 +28,7 @@ export default ({ token }: { token: string }) => {
         return;
       }
 
+      router.refresh();
       router.push("/app");
     })();
   }, [token, router]);

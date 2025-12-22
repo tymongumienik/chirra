@@ -47,11 +47,7 @@ export const authMiddleware = new Elysia().derive(
       });
     }
     if (!session) {
-      const sessionCookie = lucia.createBlankSessionCookie();
-      context.cookie?.[sessionCookie.name].set({
-        value: sessionCookie.value,
-        ...sessionCookie.attributes,
-      });
+      context.cookie?.[lucia.sessionCookieName].remove();
     }
     return {
       user,

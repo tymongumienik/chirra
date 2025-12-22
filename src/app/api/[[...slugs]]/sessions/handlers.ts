@@ -90,8 +90,7 @@ export const revokeSession = async ({
     await lucia.invalidateSession(sessionId);
 
     if (sessionId === session.id) {
-      const sessionCookie = lucia.createBlankSessionCookie();
-      (await cookies()).set(sessionCookie.name, sessionCookie.value);
+      (await cookies()).delete(lucia.sessionCookieName);
     }
 
     logger.info("Session revoked", {

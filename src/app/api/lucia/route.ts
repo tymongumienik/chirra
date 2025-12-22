@@ -21,12 +21,7 @@ export async function GET() {
     );
   }
   if (!result.session) {
-    const sessionCookie = lucia.createBlankSessionCookie();
-    (await cookies()).set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    (await cookies()).delete(lucia.sessionCookieName);
   }
 
   return NextResponse.json(result);

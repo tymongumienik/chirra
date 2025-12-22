@@ -159,9 +159,7 @@ export const logout = async ({ session }: { session: Session | null }) => {
     }
 
     await lucia.invalidateSession(session.id);
-    const sessionCookie = lucia.createBlankSessionCookie();
-
-    (await cookies()).set(sessionCookie.name, sessionCookie.value);
+    (await cookies()).delete(lucia.sessionCookieName);
 
     logger.info("User logged out", { userId: session.userId });
 

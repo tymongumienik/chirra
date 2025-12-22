@@ -54,6 +54,7 @@ export default () => {
     }
 
     if (data.success) {
+      router.refresh();
       router.push("/app");
       return;
     }
