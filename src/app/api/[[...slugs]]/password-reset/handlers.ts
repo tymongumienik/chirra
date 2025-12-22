@@ -2,6 +2,8 @@ import "server-only";
 import { hash } from "argon2";
 import { sendPasswordResetEmail } from "@/app/libs/email";
 import {
+  AppError,
+  ConflictError,
   formatErrorResponse,
   NotFoundError,
   ValidationError,
@@ -31,12 +33,26 @@ export const requestPasswordReset = async ({
       return { success: true };
     }
 
-    await prisma.passwordReset.deleteMany({
-      where: {
-        userId: user.id,
-        used: false,
-      },
+    const existingPasswordReset = await prisma.passwordReset.findFirst({
+      where: { userId: user.id },
+      select: { id: true, expiresAt: true, used: true },
+      orderBy: { expiresAt: "desc" },
     });
+
+    if (existingPasswordReset) {
+      if (
+        !existingPasswordReset.used &&
+        existingPasswordReset.expiresAt > new Date()
+      ) {
+        logger.info("Password reset already requested", { userId: user.id });
+        throw new ConflictError("Password reset already requested");
+      }
+
+      logger.info("Deleting old password reset token", { userId: user.id });
+      await prisma.passwordReset.delete({
+        where: { id: existingPasswordReset.id },
+      });
+    }
 
     const resetToken = await prisma.passwordReset.create({
       data: {
@@ -59,7 +75,7 @@ export const requestPasswordReset = async ({
 
     return { success: true };
   } catch (error) {
-    if (error instanceof ValidationError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Password reset request failed", error);
@@ -127,7 +143,7 @@ export const resetPassword = async ({
 
     return { success: true };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Password reset failed", error);

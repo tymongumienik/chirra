@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
 import { sendVerificationEmail } from "@/app/libs/email";
 import {
+  AppError,
   AuthenticationError,
   ConflictError,
   type ErrorResponse,
@@ -95,7 +96,7 @@ export const register = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof ConflictError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Registration failed", error);
@@ -148,10 +149,7 @@ export const login = async ({
       success: true,
     };
   } catch (error) {
-    if (
-      error instanceof AuthenticationError ||
-      error instanceof ValidationError
-    ) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Login failed", error);
@@ -176,7 +174,7 @@ export const logout = async ({ session }: { session: Session | null }) => {
       success: true,
     };
   } catch (error) {
-    if (error instanceof AuthenticationError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Logout failed", error);
@@ -227,7 +225,7 @@ export const verifyEmail = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Email verification failed", error);

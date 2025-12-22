@@ -51,7 +51,7 @@ model PasswordReset {
   id        String   @id @default(cuid())
   userId    String
   token     String   @unique @default(cuid())
-  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '1 hour'"))
+  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '30 minutes'"))
   createdAt DateTime @default(now())
   used      Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

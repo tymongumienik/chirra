@@ -3,6 +3,7 @@ import type { Session, User } from "lucia";
 import { cookies } from "next/headers";
 import { lucia } from "@/app/libs/auth";
 import {
+  AppError,
   AuthenticationError,
   formatErrorResponse,
   NotFoundError,
@@ -48,7 +49,7 @@ export const listSessions = async ({
       sessions: sessionsWithCurrent,
     };
   } catch (error) {
-    if (error instanceof AuthenticationError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Failed to list sessions", error);
@@ -103,10 +104,7 @@ export const revokeSession = async ({
       success: true,
     };
   } catch (error) {
-    if (
-      error instanceof AuthenticationError ||
-      error instanceof NotFoundError
-    ) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Failed to revoke session", error);
@@ -146,7 +144,7 @@ export const revokeAllSessions = async ({
       revokedCount: result.count,
     };
   } catch (error) {
-    if (error instanceof AuthenticationError) {
+    if (error instanceof AppError) {
       return formatErrorResponse(error);
     }
     logger.error("Failed to revoke all sessions", error);
