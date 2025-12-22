@@ -1,3 +1,3 @@
 export default () => {
-  return <>Register page</>;
+  return "Register page";
 };

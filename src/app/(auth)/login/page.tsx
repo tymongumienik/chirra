@@ -1,5 +1,6 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
@@ -12,6 +13,7 @@ export default () => {
   const lucia = useLuciaContext();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const usernameOrEmailField = useRef<HTMLInputElement | null>(null);
   const passwordField = useRef<HTMLInputElement | null>(null);
@@ -28,10 +30,14 @@ export default () => {
     if (!usernameOrEmailField?.current) return;
     if (!passwordField?.current) return;
 
+    setLoading(true);
+
     const response = await api.login.post({
       usernameOrEmail: usernameOrEmailField.current.value,
       password: passwordField.current.value,
     });
+
+    setLoading(false);
 
     if (response.error) {
       setErrorMessage("Something went wrong");
@@ -107,8 +113,9 @@ export default () => {
         <Button
           type="submit"
           className="w-full h-11 font-semibold bg-accent text-accent-foreground"
+          disabled={loading}
         >
-          Sign in
+          {loading ? <LoaderCircle className="animate-spin" /> : "Sign in"}
         </Button>
 
         <div className="text-center text-sm  text-muted-foreground gap-2">

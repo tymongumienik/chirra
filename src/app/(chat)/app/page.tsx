@@ -1,3 +1,3 @@
 export default () => {
-  return <>The actual app</>;
+  return "The actual app";
 };

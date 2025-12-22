@@ -37,7 +37,7 @@ const authRoutes = new Elysia()
     },
     { body: "auth.login" },
   )
-  .get("/sign-out", logout)
+  .get("/logout", logout)
   .get("/verify-email", verifyEmail);
 
 export default authRoutes;
