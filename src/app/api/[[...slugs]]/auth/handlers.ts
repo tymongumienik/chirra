@@ -26,7 +26,7 @@ export const register = async ({
   prisma,
 }: {
   body: { username: string; password: string; email: string };
-} & WithPrisma) => {
+} & WithPrisma): Promise<ErrorResponse | { success: true }> => {
   try {
     const username = body.username;
     const email = body.email;
@@ -84,11 +84,6 @@ export const register = async ({
 
       return newUser;
     });
-
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-
-    (await cookies()).set(sessionCookie.name, sessionCookie.value);
 
     logger.info("User registered", { userId: user.id, username });
 
@@ -218,6 +213,11 @@ export const verifyEmail = async ({
     await prisma.emailVerification.delete({
       where: { token },
     });
+
+    const session = await lucia.createSession(verification.userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+
+    (await cookies()).set(sessionCookie.name, sessionCookie.value);
 
     logger.info("Email verified", { userId: verification.userId });
 
