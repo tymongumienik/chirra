@@ -3,6 +3,7 @@
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { api } from "@/app/libs/api";
 import { useLuciaContext } from "@/app/libs/lucia-context";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,6 @@ import { err } from "@/app/libs/error-helper";
 
 export default () => {
   const lucia = useLuciaContext();
-
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
 
   const usernameField = useRef<HTMLInputElement | null>(null);
@@ -21,48 +19,51 @@ export default () => {
   const passwordField = useRef<HTMLInputElement | null>(null);
   const confirmPasswordField = useRef<HTMLInputElement | null>(null);
 
-  if (lucia.user) {
-    window.location.href = "/app"; // hard redirect
-    return;
-  }
+  const registerMutation = useMutation({
+    mutationFn: async (data: {
+      username: string;
+      email: string;
+      password: string;
+    }) => {
+      if (data.password !== confirmPasswordField.current?.value) {
+        throw new Error("Passwords do not match");
+      }
+      return await api.register.post(data);
+    },
+    onSuccess: (response) => {
+      if (response.error) {
+        throw new Error(err(response));
+      }
+      setVerifyEmail(true);
+    },
+  });
 
-  const action = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setErrorMessage(null);
-
-    if (verifyEmail) return;
-    if (!usernameField?.current) return;
-    if (!emailField?.current) return;
-    if (!passwordField?.current) return;
-    if (!confirmPasswordField?.current) return;
-
-    if (passwordField.current.value !== confirmPasswordField.current.value) {
-      setErrorMessage("Passwords do not match");
+    if (
+      !usernameField.current ||
+      !emailField.current ||
+      !passwordField.current ||
+      !confirmPasswordField.current
+    )
       return;
-    }
 
-    setLoading(true);
-
-    const response = await api.register.post({
+    registerMutation.mutate({
       username: usernameField.current.value,
       email: emailField.current.value,
       password: passwordField.current.value,
     });
-
-    setLoading(false);
-
-    if (response.error) {
-      setErrorMessage(err(response));
-      return;
-    }
-
-    setVerifyEmail(true);
   };
+
+  if (lucia.user) {
+    window.location.href = "/app"; // hard redirect
+    return null;
+  }
 
   return (
     <form
-      onSubmit={action}
+      onSubmit={handleSubmit}
       className="inter min-h-screen flex items-center justify-center bg-background p-8"
     >
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-2xl border border-border shadow-xl backdrop-blur-sm">
@@ -71,8 +72,10 @@ export default () => {
             Create a new account
           </h1>
 
-          {errorMessage && (
-            <p className="text-md text-destructive">{errorMessage}</p>
+          {registerMutation.isError && (
+            <p className="text-md text-destructive">
+              {(registerMutation.error as Error).message}
+            </p>
           )}
         </div>
 
@@ -98,6 +101,7 @@ export default () => {
                   ref={usernameField}
                 />
               </div>
+
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="password"
@@ -112,6 +116,7 @@ export default () => {
                   ref={passwordField}
                 />
               </div>
+
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="confirmpassword"
@@ -126,6 +131,7 @@ export default () => {
                   ref={confirmPasswordField}
                 />
               </div>
+
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="email"
@@ -145,9 +151,13 @@ export default () => {
             <Button
               type="submit"
               className="w-full h-11 font-semibold bg-accent text-accent-foreground"
-              disabled={loading}
+              disabled={registerMutation.isPending}
             >
-              {loading ? <LoaderCircle className="animate-spin" /> : "Sign up"}
+              {registerMutation.isPending ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                "Sign up"
+              )}
             </Button>
 
             <div className="text-center text-sm text-muted-foreground gap-2">

@@ -2,7 +2,8 @@
 
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useRef, useState } from "react";
+import { type FormEvent, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { api } from "@/app/libs/api";
 import { useLuciaContext } from "@/app/libs/lucia-context";
 import { Button } from "@/components/ui/button";
@@ -12,53 +13,50 @@ import { err } from "@/app/libs/error-helper";
 export default () => {
   const lucia = useLuciaContext();
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const usernameOrEmailField = useRef<HTMLInputElement | null>(null);
   const passwordField = useRef<HTMLInputElement | null>(null);
 
-  if (lucia.user) {
-    window.location.href = "/app"; // hard redirect
-    return;
-  }
+  const loginMutation = useMutation({
+    mutationFn: async (data: { usernameOrEmail: string; password: string }) => {
+      return await api.login.post(data);
+    },
+    onSuccess: (response) => {
+      if (response.error) {
+        throw new Error(err(response));
+      } else {
+        window.location.href = "/app"; // hard redirect
+      }
+    },
+  });
 
-  const action = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!usernameOrEmailField.current || !passwordField.current) return;
 
-    setErrorMessage(null);
-
-    if (!usernameOrEmailField?.current) return;
-    if (!passwordField?.current) return;
-
-    setLoading(true);
-
-    const response = await api.login.post({
+    loginMutation.mutate({
       usernameOrEmail: usernameOrEmailField.current.value,
       password: passwordField.current.value,
     });
-
-    setLoading(false);
-
-    if (response.error) {
-      setErrorMessage(err(response));
-      return;
-    }
-
-    window.location.href = "/app"; // hard redirect
   };
+
+  if (lucia.user) {
+    window.location.href = "/app"; // hard redirect
+    return null;
+  }
 
   return (
     <form
-      onSubmit={action}
+      onSubmit={handleSubmit}
       className="inter min-h-screen flex items-center justify-center bg-background p-8"
     >
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-2xl border border-border shadow-xl backdrop-blur-sm">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-foreground">Welcome back!</h1>
 
-          {errorMessage && (
-            <p className="text-md text-destructive">{errorMessage}</p>
+          {loginMutation.isError && (
+            <p className="text-md text-destructive">
+              {loginMutation.error.message}
+            </p>
           )}
         </div>
 
@@ -105,12 +103,16 @@ export default () => {
         <Button
           type="submit"
           className="w-full h-11 font-semibold bg-accent text-accent-foreground"
-          disabled={loading}
+          disabled={loginMutation.isPending}
         >
-          {loading ? <LoaderCircle className="animate-spin" /> : "Sign in"}
+          {loginMutation.isPending ? (
+            <LoaderCircle className="animate-spin" />
+          ) : (
+            "Sign in"
+          )}
         </Button>
 
-        <div className="text-center text-sm  text-muted-foreground gap-2">
+        <div className="text-center text-sm text-muted-foreground gap-2">
           Don't have an account?{" "}
           <Link
             href="/register"

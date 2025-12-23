@@ -5,8 +5,9 @@ export const passwordResetSchema = {
   "password-reset.request": t.Object({
     email: t.String({
       format: "email",
+      minLength: 5,
       maxLength: 255,
-      error: "Email must be at most 255 characters long",
+      error: "Email must be between 5 and 255 characters",
     }),
   }),
   "password-reset.reset": t.Object({
