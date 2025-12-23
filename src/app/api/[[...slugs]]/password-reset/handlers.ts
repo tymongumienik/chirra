@@ -9,6 +9,8 @@ import { logger } from "@/app/libs/logger";
 import { validateEmail, validatePassword } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
 import type { passwordResetSchema } from "./schema";
+import { lucia } from "@/app/libs/auth";
+import { Context } from "elysia";
 
 export const requestPasswordReset = async ({
   body,
@@ -43,7 +45,7 @@ export const requestPasswordReset = async ({
         existingPasswordReset.expiresAt > new Date()
       ) {
         logger.info("Password reset already requested", { userId: user.id });
-        throw new ConflictError("Password reset already requested");
+        return { success: true };
       }
 
       logger.info("Deleting old password reset token", { userId: user.id });
@@ -80,9 +82,11 @@ export const requestPasswordReset = async ({
 
 export const resetPassword = async ({
   body,
+  cookie,
   prisma,
 }: {
   body: (typeof passwordResetSchema)["password-reset.reset"]["static"];
+  cookie: Context["cookie"];
 } & WithPrisma) => {
   try {
     const { token, newPassword } = body;
@@ -133,6 +137,14 @@ export const resetPassword = async ({
         where: { userId: resetToken.userId },
       }),
     ]);
+
+    const session = await lucia.createSession(resetToken.userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+
+    cookie[sessionCookie.name].set({
+      value: sessionCookie.value,
+      ...sessionCookie.attributes,
+    });
 
     logger.info("Password reset successful", { userId: resetToken.userId });
 
