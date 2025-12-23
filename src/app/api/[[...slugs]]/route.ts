@@ -1,13 +1,13 @@
 import "server-only";
 import cors, { type HTTPMethod } from "@elysiajs/cors";
-import { Elysia, form } from "elysia";
+import { Elysia } from "elysia";
 import { env } from "@/app/libs/env";
+import { AppError, formatErrorResponse } from "@/app/libs/errors";
 import authRoutes from "./auth";
 import { authMiddleware } from "./middleware";
 import passwordResetRoutes from "./password-reset";
 import sessionRoutes from "./sessions";
 import userRoutes from "./user";
-import { AppError, formatErrorResponse } from "@/app/libs/errors";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,

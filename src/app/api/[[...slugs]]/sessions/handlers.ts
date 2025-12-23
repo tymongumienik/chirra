@@ -5,7 +5,7 @@ import { lucia } from "@/app/libs/auth";
 import { AuthenticationError, NotFoundError } from "@/app/libs/errors";
 import { logger } from "@/app/libs/logger";
 import type { WithPrisma } from "@/types/database";
-import { sessionSchema } from "./schema";
+import type { sessionSchema } from "./schema";
 
 export const listSessions = async ({
   user,

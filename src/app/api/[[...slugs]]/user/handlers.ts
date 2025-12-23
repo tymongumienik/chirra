@@ -1,7 +1,7 @@
 import "server-only";
 import type { User } from "lucia";
-import type { WithPrisma } from "@/types/database";
 import { AuthenticationError } from "@/app/libs/errors";
+import type { WithPrisma } from "@/types/database";
 
 export const whoAmI = async ({
   user,

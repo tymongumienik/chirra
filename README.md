@@ -40,11 +40,12 @@ Make sure to update the `.env` file with your actual database credentials and SM
 ## Scripts
 
 ```bash
-bun run dev      # Development server
-bun run build    # Production build
-bun run start    # Start production server
-bun run lint     # Lint with Biome
-bun run format   # Format code
+bun run dev       # Development server
+bun run build     # Production build
+bun run start     # Start production server
+bun run lint      # Lint with Biome
+bun run format    # Format code
+bun run email:dev # Email preview server
 ```
 
 ## Roadmap

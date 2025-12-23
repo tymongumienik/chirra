@@ -6,7 +6,6 @@ import { api } from "@/app/libs/api";
 import { err } from "@/app/libs/error-helper";
 
 export default ({ token }: { token: string }) => {
-  const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -14,8 +13,6 @@ export default ({ token }: { token: string }) => {
       const response = await api["verify-email"].get({
         query: { token },
       });
-
-      setLoading(false);
 
       if (response.error) {
         setErrorMessage(err(response));
