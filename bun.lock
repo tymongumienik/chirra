@@ -29,6 +29,7 @@
         "react-dom": "19.2.3",
         "react-email": "^5.1.0",
         "tailwind-merge": "^3.4.0",
+        "zustand": "^5.0.9",
       },
       "devDependencies": {
         "@biomejs/biome": "2.2.0",
@@ -1145,6 +1146,8 @@
     "yoctocolors": ["yoctocolors@2.1.2", "", {}, "sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug=="],
 
     "zeptomatch": ["zeptomatch@2.0.2", "", { "dependencies": { "grammex": "^3.1.10" } }, "sha512-H33jtSKf8Ijtb5BW6wua3G5DhnFjbFML36eFu+VdOoVY4HD9e7ggjqdM6639B+L87rjnR6Y+XeRzBXZdy52B/g=="],
+
+    "zustand": ["zustand@5.0.9", "", { "peerDependencies": { "@types/react": ">=18.0.0", "immer": ">=9.0.6", "react": ">=18.0.0", "use-sync-external-store": ">=1.2.0" }, "optionalPeers": ["@types/react", "immer", "react", "use-sync-external-store"] }, "sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg=="],
 
     "@aws-crypto/sha256-browser/@smithy/util-utf8": ["@smithy/util-utf8@2.3.0", "", { "dependencies": { "@smithy/util-buffer-from": "^2.2.0", "tslib": "^2.6.2" } }, "sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A=="],
 

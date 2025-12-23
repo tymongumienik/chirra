@@ -11,6 +11,7 @@ Chirra (`/ˈkʲira/`) is a full-stack Next.js chat service, powered by WebSocket
 - PostgreSQL + Prisma
 - Lucia
 - Tailwind CSS
+- React Query
 - React Email + Nodemailer
 - Elysia + Eden Treaty for the API
 - Biome for linting/formatting
@@ -58,7 +59,7 @@ bun run email:dev # Email preview server
 - [ ] Chat system: database schema, message storage
 - [ ] Scaffold frontend: login/registration, email verification
 - [ ] Create frontend for chat interface 
-- [ ] Password reset
+- [x] Password reset
 - [ ] Profile settings page
 - [x] Rate limiting
 - [ ] Tests

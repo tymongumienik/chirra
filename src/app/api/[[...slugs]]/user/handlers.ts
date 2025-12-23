@@ -20,7 +20,6 @@ export const whoAmI = async ({
       displayname: true,
       email: true,
       profile: true,
-      sessions: true,
     },
   });
 
