@@ -131,7 +131,6 @@ const PasswordResetEmail = ({ resetUrl }: { resetUrl: string }) => (
 );
 
 export async function sendVerificationEmail(to: string, token: string) {
-  // TODO: implement line below
   const verificationUrl = `${env.EMAIL_APP_URL}/verify-email/${token}`;
 
   try {
