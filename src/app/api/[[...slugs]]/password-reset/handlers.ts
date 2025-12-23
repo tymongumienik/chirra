@@ -1,5 +1,4 @@
 import "server-only";
-import { hash } from "argon2";
 import { sendPasswordResetEmail } from "@/app/libs/email";
 import {
   AppError,
@@ -123,7 +122,7 @@ export const resetPassword = async ({
       throw new ValidationError("Token has expired");
     }
 
-    const passwordHash = await hash(newPassword);
+    const passwordHash = await Bun.password.hash(newPassword);
 
     await prisma.$transaction([
       prisma.user.update({

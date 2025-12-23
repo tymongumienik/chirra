@@ -1,5 +1,4 @@
 import "server-only";
-import { hash, verify } from "argon2";
 import type { Context } from "elysia";
 import type { Session } from "lucia";
 import { lucia } from "@/app/libs/auth";
@@ -50,7 +49,7 @@ export const register = async ({
       throw new ConflictError("Email is already registered");
     }
 
-    const passwordHash = await hash(password);
+    const passwordHash = await Bun.password.hash(password);
 
     // Create user and send verification email in transaction
     const user = await prisma.$transaction(async (tx) => {
@@ -126,7 +125,10 @@ export const login = async ({
       throw new AuthenticationError();
     }
 
-    const validPassword = await verify(user.password, body.password);
+    const validPassword = await Bun.password.verify(
+      body.password,
+      user.password,
+    );
     if (!validPassword) {
       throw new AuthenticationError();
     }
