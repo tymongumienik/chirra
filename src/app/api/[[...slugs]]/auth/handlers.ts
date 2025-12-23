@@ -19,12 +19,13 @@ import {
   validateUsername,
 } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
+import type { authSchema } from "./schema";
 
 export const register = async ({
   body,
   prisma,
 }: {
-  body: { username: string; password: string; email: string };
+  body: (typeof authSchema)["auth.register"]["static"];
 } & WithPrisma): Promise<ErrorResponse | { success: true }> => {
   try {
     const username = body.username;
@@ -103,7 +104,7 @@ export const login = async ({
   prisma,
   cookie,
 }: {
-  body: { usernameOrEmail: string; password: string };
+  body: (typeof authSchema)["auth.login"]["static"];
   cookie: Context["cookie"];
 } & WithPrisma): Promise<ErrorResponse | { success: true }> => {
   try {

@@ -10,6 +10,7 @@ import {
 } from "@/app/libs/errors";
 import { logger } from "@/app/libs/logger";
 import type { WithPrisma } from "@/types/database";
+import { sessionSchema } from "./schema";
 
 export const listSessions = async ({
   user,
@@ -66,7 +67,7 @@ export const revokeSession = async ({
 }: {
   user: User | null;
   session: Session | null;
-  body: { sessionId: string };
+  body: (typeof sessionSchema)["session.revoke"]["static"];
   cookie: Context["cookie"];
 } & WithPrisma) => {
   try {

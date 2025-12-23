@@ -10,12 +10,13 @@ import {
 import { logger } from "@/app/libs/logger";
 import { validateEmail, validatePassword } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
+import type { passwordResetSchema } from "./schema";
 
 export const requestPasswordReset = async ({
   body,
   prisma,
 }: {
-  body: { email: string };
+  body: (typeof passwordResetSchema)["password-reset.request"]["static"];
 } & WithPrisma) => {
   try {
     const email = body.email;
@@ -86,7 +87,7 @@ export const resetPassword = async ({
   body,
   prisma,
 }: {
-  body: { token: string; newPassword: string };
+  body: (typeof passwordResetSchema)["password-reset.reset"]["static"];
 } & WithPrisma) => {
   try {
     const { token, newPassword } = body;
