@@ -1,5 +1,4 @@
 import "server-only";
-import { NotFoundError } from "elysia";
 import type { User } from "lucia";
 import type { WithPrisma } from "@/types/database";
 
@@ -16,7 +15,6 @@ export const whoAmI = async ({
       id: user.id,
     },
     select: {
-      id: true,
       username: true,
       displayname: true,
       email: true,
