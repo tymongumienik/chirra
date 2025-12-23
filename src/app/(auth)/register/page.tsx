@@ -74,7 +74,7 @@ export default () => {
 
           {registerMutation.isError && (
             <p className="text-md text-destructive">
-              {(registerMutation.error as Error).message}
+              {registerMutation.error.message}
             </p>
           )}
         </div>
