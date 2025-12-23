@@ -1,4 +1,5 @@
 import "server-only";
+import { ValidationError as ElysiaValidationError } from "elysia";
 
 export class AppError extends Error {
   constructor(
@@ -48,32 +49,24 @@ export class ConflictError extends AppError {
 }
 
 export interface ErrorResponse {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
+  message: string;
 }
 
 export function formatErrorResponse(error: unknown): ErrorResponse {
   if (error instanceof AppError) {
     return {
-      success: false,
-      error: {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-      },
+      message: error.message,
     };
   }
 
+  if (error instanceof ElysiaValidationError) {
+    if ("customError" in error) {
+      return { message: `${error.customError}` };
+    }
+  }
+
   return {
-    success: false,
-    error: {
-      code: "INTERNAL_ERROR",
-      message: "An unexpected error occurred",
-    },
+    message: "Unexpected error occured",
   };
 }
 

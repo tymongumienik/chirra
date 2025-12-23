@@ -3,26 +3,22 @@
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/app/libs/api";
+import { err } from "@/app/libs/error-helper";
 
 export default ({ token }: { token: string }) => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const result = await api["verify-email"].get({
+      const response = await api["verify-email"].get({
         query: { token },
       });
 
       setLoading(false);
 
-      if (result.error) {
-        setError("An error occured while trying to verify your email");
-        return;
-      }
-
-      if ("error" in result.data) {
-        setError(result.data.error.message);
+      if (response.error) {
+        setErrorMessage(err(response));
         return;
       }
 
@@ -32,7 +28,11 @@ export default ({ token }: { token: string }) => {
 
   return (
     <div className="inter min-h-screen flex items-center justify-center bg-background p-8 text-4xl text-foreground">
-      {loading ? <LoaderCircle className="animate-spin" /> : error ? error : ""}
+      {errorMessage === null ? (
+        <LoaderCircle className="animate-spin" />
+      ) : (
+        errorMessage
+      )}
     </div>
   );
 };

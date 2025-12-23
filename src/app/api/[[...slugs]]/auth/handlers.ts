@@ -4,11 +4,9 @@ import type { Session } from "lucia";
 import { lucia } from "@/app/libs/auth";
 import { sendVerificationEmail } from "@/app/libs/email";
 import {
-  AppError,
   AuthenticationError,
   ConflictError,
   type ErrorResponse,
-  formatErrorResponse,
   NotFoundError,
   ValidationError,
 } from "@/app/libs/errors";
@@ -91,11 +89,8 @@ export const register = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Registration failed", error);
-    return formatErrorResponse(new Error("Failed to create account"));
+    throw error;
   }
 };
 
@@ -152,11 +147,8 @@ export const login = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Login failed", error);
-    return formatErrorResponse(new Error("Login failed"));
+    throw error;
   }
 };
 
@@ -181,11 +173,8 @@ export const logout = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Logout failed", error);
-    return formatErrorResponse(new Error("Logout failed"));
+    throw error;
   }
 };
 
@@ -242,10 +231,7 @@ export const verifyEmail = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Email verification failed", error);
-    return formatErrorResponse(new Error("Email verification failed"));
+    throw error;
   }
 };

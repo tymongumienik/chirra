@@ -1,9 +1,7 @@
 import "server-only";
 import { sendPasswordResetEmail } from "@/app/libs/email";
 import {
-  AppError,
   ConflictError,
-  formatErrorResponse,
   NotFoundError,
   ValidationError,
 } from "@/app/libs/errors";
@@ -75,11 +73,8 @@ export const requestPasswordReset = async ({
 
     return { success: true };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Password reset request failed", error);
-    return formatErrorResponse(new Error("Password reset request failed"));
+    throw error;
   }
 };
 
@@ -143,10 +138,7 @@ export const resetPassword = async ({
 
     return { success: true };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Password reset failed", error);
-    return formatErrorResponse(new Error("Password reset failed"));
+    throw error;
   }
 };

@@ -7,6 +7,7 @@ import { api } from "@/app/libs/api";
 import { useLuciaContext } from "@/app/libs/lucia-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { err } from "@/app/libs/error-helper";
 
 export default () => {
   const lucia = useLuciaContext();
@@ -52,20 +53,11 @@ export default () => {
     setLoading(false);
 
     if (response.error) {
-      setErrorMessage("Something went wrong");
+      setErrorMessage(err(response));
       return;
     }
 
-    const data = response.data;
-
-    if ("error" in data) {
-      setErrorMessage(data.error.message);
-      return;
-    }
-
-    if (data.success) {
-      setVerifyEmail(true);
-    }
+    setVerifyEmail(true);
   };
 
   return (

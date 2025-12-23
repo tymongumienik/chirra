@@ -1,13 +1,14 @@
 import "server-only";
 import type { User } from "lucia";
 import type { WithPrisma } from "@/types/database";
+import { AuthenticationError } from "@/app/libs/errors";
 
 export const whoAmI = async ({
   user,
   prisma,
 }: { user: User | null } & WithPrisma) => {
   if (!user) {
-    return { success: false };
+    throw new AuthenticationError("Unauthorized");
   }
 
   const userData = await prisma.user.findUnique({
@@ -24,7 +25,7 @@ export const whoAmI = async ({
   });
 
   if (!userData) {
-    return { success: false };
+    throw new AuthenticationError("Unauthorized"); // the same error, less information is better
   }
 
   return { success: true, user: userData };

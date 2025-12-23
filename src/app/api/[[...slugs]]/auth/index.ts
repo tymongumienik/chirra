@@ -2,7 +2,6 @@ import "server-only";
 import Elysia from "elysia";
 import { ip } from "elysia-ip";
 import prismaService from "@/app/libs/db";
-import { formatErrorResponse } from "@/app/libs/errors";
 import { rateLimiter } from "@/app/libs/rate-limiter";
 import { authMiddleware } from "../middleware";
 import { login, logout, register, verifyEmail } from "./handlers";
@@ -16,24 +15,16 @@ const authRoutes = new Elysia()
   .post(
     "/register",
     async (context) => {
-      try {
-        rateLimiter.check(context.ip);
-        return await register(context);
-      } catch (error) {
-        return formatErrorResponse(error);
-      }
+      rateLimiter.check(context.ip);
+      return await register(context);
     },
     { body: "auth.register" },
   )
   .post(
     "/login",
     async (context) => {
-      try {
-        rateLimiter.check(context.ip);
-        return await login(context);
-      } catch (error) {
-        return formatErrorResponse(error);
-      }
+      rateLimiter.check(context.ip);
+      return await login(context);
     },
     { body: "auth.login" },
   )

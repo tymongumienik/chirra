@@ -2,12 +2,7 @@ import "server-only";
 import type { Context } from "elysia";
 import type { Session, User } from "lucia";
 import { lucia } from "@/app/libs/auth";
-import {
-  AppError,
-  AuthenticationError,
-  formatErrorResponse,
-  NotFoundError,
-} from "@/app/libs/errors";
+import { AuthenticationError, NotFoundError } from "@/app/libs/errors";
 import { logger } from "@/app/libs/logger";
 import type { WithPrisma } from "@/types/database";
 import { sessionSchema } from "./schema";
@@ -50,11 +45,8 @@ export const listSessions = async ({
       sessions: sessionsWithCurrent,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Failed to list sessions", error);
-    return formatErrorResponse(new Error("Failed to list sessions"));
+    throw error;
   }
 };
 
@@ -105,11 +97,8 @@ export const revokeSession = async ({
       success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Failed to revoke session", error);
-    return formatErrorResponse(new Error("Failed to revoke session"));
+    throw error;
   }
 };
 
@@ -145,10 +134,7 @@ export const revokeAllSessions = async ({
       revokedCount: result.count,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return formatErrorResponse(error);
-    }
     logger.error("Failed to revoke all sessions", error);
-    return formatErrorResponse(new Error("Failed to revoke all sessions"));
+    throw error;
   }
 };
