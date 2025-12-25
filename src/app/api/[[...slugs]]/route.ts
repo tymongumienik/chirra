@@ -3,6 +3,8 @@ import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import { env } from "@/app/libs/env";
 import { AppError, formatErrorResponse } from "@/app/libs/errors";
+import { lucia } from "@/app/libs/auth";
+import type { Session, User } from "lucia";
 import authRoutes from "./normal/auth";
 import { authMiddleware } from "./middleware";
 import passwordResetRoutes from "./normal/password-reset";
@@ -40,7 +42,12 @@ export const DELETE = app.fetch;
 
 export type WebSocketRoute = {
   message: string;
-  execute: (data: Record<string, unknown> | null) => void;
+  execute: (
+    data: Record<string, unknown> | null,
+    user: User | null,
+    session: Session | null,
+  ) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 };
 
 export const UPGRADE = (
@@ -51,10 +58,17 @@ export const UPGRADE = (
 ) => {
   console.log("A client connected");
 
-  client.on("message", (message) => {
-    const messageParsed = JSON.parse(message.toString());
+  client.on("message", async (message) => {
+    let messageParsed: Record<string, unknown> | null = null;
+    try {
+      messageParsed = JSON.parse(message.toString());
+    } catch {
+      client.terminate();
+      return;
+    }
 
     if (!ReceivedMessageCompiler.Check(messageParsed)) {
+      client.terminate();
       return;
     }
 
@@ -66,7 +80,31 @@ export const UPGRADE = (
 
     const route = routes.get(messageParsed.message);
     if (route) {
-      route(messageParsed.data);
+      // Auth check
+      const cookieHeader = request.headers.get("Cookie") ?? "";
+      const sessionId = lucia.readSessionCookie(cookieHeader);
+
+      let user: User | null = null;
+      let session: Session | null = null;
+
+      let success = false;
+
+      if (sessionId) {
+        const result = await lucia.validateSession(sessionId);
+        user = result.user;
+        session = result.session;
+        if (user && session) {
+          success = true;
+        }
+      }
+
+      if (!success) {
+        // bye bye have a great time
+        client.terminate();
+        return;
+      }
+
+      route(messageParsed.data, user, session);
     }
   });
 
