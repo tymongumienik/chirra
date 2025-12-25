@@ -3,11 +3,13 @@ import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import { env } from "@/app/libs/env";
 import { AppError, formatErrorResponse } from "@/app/libs/errors";
-import authRoutes from "./auth";
+import authRoutes from "./normal/auth";
 import { authMiddleware } from "./middleware";
-import passwordResetRoutes from "./password-reset";
-import sessionRoutes from "./sessions";
-import userRoutes from "./user";
+import passwordResetRoutes from "./normal/password-reset";
+import sessionRoutes from "./normal/sessions";
+import userRoutes from "./normal/user";
+import { getGeneralUserUpdateHandler } from "./ws/handlers/get-general-user-update";
+import { ReceivedMessageCompiler } from "./ws/shared-schema";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
@@ -36,6 +38,11 @@ export const PUT = app.fetch;
 export const PATCH = app.fetch;
 export const DELETE = app.fetch;
 
+export type WebSocketRoute = {
+  message: string;
+  execute: (data: Record<string, unknown> | null) => void;
+};
+
 export const UPGRADE = (
   client: import("ws").WebSocket,
   server: import("ws").WebSocketServer,
@@ -45,8 +52,22 @@ export const UPGRADE = (
   console.log("A client connected");
 
   client.on("message", (message) => {
-    console.log("Received message:", message);
-    client.send(message);
+    const messageParsed = JSON.parse(message.toString());
+
+    if (!ReceivedMessageCompiler.Check(messageParsed)) {
+      return;
+    }
+
+    const routeHandlers = [getGeneralUserUpdateHandler];
+    const routes = new Map();
+    for (const x of routeHandlers) {
+      routes.set(x.message, x.execute);
+    }
+
+    const route = routes.get(messageParsed.message);
+    if (route) {
+      route(messageParsed.data);
+    }
   });
 
   client.once("close", () => {

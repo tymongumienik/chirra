@@ -3,7 +3,7 @@ import Elysia from "elysia";
 import { ip } from "elysia-ip";
 import prismaService from "@/app/libs/db";
 import { rateLimiter } from "@/app/libs/rate-limiter";
-import { authMiddleware } from "../middleware";
+import { authMiddleware } from "../../middleware";
 import { requestPasswordReset, resetPassword } from "./handlers";
 import { passwordResetSchema } from "./schema";
 

@@ -19,6 +19,31 @@ model User {
   sessions          Session[]
   passwordResets    PasswordReset[]
   auditLogs         AuditLog[]
+
+  sentFriendRequests     Friend[] @relation("FriendRequester")
+  receivedFriendRequests Friend[] @relation("FriendAddressee")
+}
+
+model Friend {
+  id          String       @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      FriendStatus
+  createdAt   DateTime     @default(now())
+
+  requester User @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
 }
 
 model EmailVerification {

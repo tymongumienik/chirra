@@ -25,6 +25,8 @@ export default () => {
 
   useEffect(() => {
     fetchUser();
+    const t = setTimeout(fetchUser, 30000);
+    return () => clearTimeout(t);
   }, [fetchUser]);
 
   useEffect(() => {

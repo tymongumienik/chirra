@@ -1,7 +1,7 @@
 import "server-only";
 import Elysia from "elysia";
 import prismaService from "@/app/libs/db";
-import { authMiddleware } from "../middleware";
+import { authMiddleware } from "../../middleware";
 import { listSessions, revokeAllSessions, revokeSession } from "./handlers";
 import { sessionSchema } from "./schema";
 

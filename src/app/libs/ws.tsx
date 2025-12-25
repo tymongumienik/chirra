@@ -8,7 +8,7 @@ import React, {
 
 type WebSocketContextType = {
   ws: WebSocket | null;
-  sendMessage: (msg: string) => void;
+  sendMessage: (message: string, data?: Record<string, unknown>) => void;
   subscribe: (cb: (msg: Record<string, unknown>) => void) => () => void;
 };
 
@@ -22,7 +22,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const listenersRef = useRef<Set<(msg: MessageEvent) => void>>(new Set());
+  const listenersRef = useRef<Set<(msg: Record<string, unknown>) => void>>(
+    new Set(),
+  );
 
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -96,15 +98,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const sendMessage = (msg: string) => {
+  const sendMessage = (message: string, data?: Record<string, unknown>) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(msg);
+      wsRef.current.send(JSON.stringify({ message, data: data || {} }));
     } else {
       console.warn("WebSocket not open :(");
     }
   };
 
-  const subscribe = (cb: (msg: MessageEvent) => void) => {
+  const subscribe = (cb: (msg: Record<string, unknown>) => void) => {
     listenersRef.current.add(cb);
     return () => listenersRef.current.delete(cb);
   };
