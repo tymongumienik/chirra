@@ -36,4 +36,22 @@ export const PUT = app.fetch;
 export const PATCH = app.fetch;
 export const DELETE = app.fetch;
 
+export const UPGRADE = (
+  client: import("ws").WebSocket,
+  server: import("ws").WebSocketServer,
+  request: import("next/server").NextRequest,
+  context: import("next-ws/server").RouteContext<"/api/ws">,
+) => {
+  console.log("A client connected");
+
+  client.on("message", (message) => {
+    console.log("Received message:", message);
+    client.send(message);
+  });
+
+  client.once("close", () => {
+    console.log("A client disconnected");
+  });
+};
+
 export type API = typeof app;

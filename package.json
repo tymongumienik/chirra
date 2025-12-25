@@ -8,7 +8,8 @@
     "start": "bun --bun next start",
     "lint": "bun --bun biome check",
     "format": "bun --bun biome format --write && prisma format",
-    "email:dev": "bunx react-email dev --dir src/app/libs/ --port 3001"
+    "email:dev": "bunx react-email dev --dir src/app/libs/ --port 3001",
+    "prepare": "next-ws patch"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
@@ -27,6 +28,7 @@
     "lucia": "^3.2.2",
     "lucide-react": "^0.562.0",
     "next": "16.1.0",
+    "next-ws": "^2.1.11",
     "nodemailer": "^7.0.11",
     "pg": "^8.16.3",
     "prisma": "^7.2.0",
@@ -35,6 +37,7 @@
     "react-dom": "19.2.3",
     "react-email": "^5.1.0",
     "tailwind-merge": "^3.4.0",
+    "ws": "^8.18.3",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
