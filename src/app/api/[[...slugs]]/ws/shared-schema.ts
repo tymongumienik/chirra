@@ -42,6 +42,14 @@ export const DeleteFriendEntryDataCompiler = TypeCompiler.Compile(
   DeleteFriendEntryData,
 );
 
+export const AcceptFriendRequestData = t.Object({
+  pair: Invite,
+});
+
+export const AcceptFriendRequestDataCompiler = TypeCompiler.Compile(
+  AcceptFriendRequestData,
+);
+
 // LETTERS
 
 export const PendingInvitesLetter = t.Object({

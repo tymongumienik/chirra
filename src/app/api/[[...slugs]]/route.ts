@@ -15,6 +15,8 @@ import { ReceivedMessageCompiler } from "./ws/shared-schema";
 import { pingHandler } from "./ws/handlers/ping";
 import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
 import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
+import { acceptFriendRequestHandler } from "./ws/handlers/accept-friend-request";
+import { logger } from "@/app/libs/logger";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
@@ -47,7 +49,19 @@ const webSocketRouteHandlers = [
   pingHandler,
   sendFriendRequestHandler,
   deleteFriendEntryHandler,
+  acceptFriendRequestHandler,
 ];
+
+// WebSocket communication is bidirectional, and this codebase
+// uses different names for requests sent either way.
+// A request from client to server is called a "message" or "request",
+// a response from the server is either a "reply" (if directly linked) to a
+// message, or a "letter" (if a generic update, i.e. broadcasting pending invites)
+
+// WebSocket transmissions are in the format of "prefix:dash-case", where prefix is either:
+// "void" for void requests (ones that will not return a reply, a letter at most)
+// "over" (as in radio comunication) for requests that will return a reply (i.e. a friend request will return a success or failure)
+// "letter" for letters
 
 export type WebSocketRoute = {
   message: string;
@@ -70,7 +84,7 @@ export const UPGRADE = (
   request: import("next/server").NextRequest,
   context: import("next-ws/server").RouteContext<"/api/ws">,
 ) => {
-  console.log("A client connected");
+  logger.info("A client connected to WebSocket");
 
   let authenticatedUserId: string | null = null;
 
@@ -127,7 +141,7 @@ export const UPGRADE = (
           connectedClients.set(user.id, new Set());
         }
         connectedClients.get(user.id)?.add(client);
-        console.log(`Client added to registry for user ${user.id}`);
+        logger.info(`Client added to WebSocket registry for user ${user.id}`);
       }
 
       route({
@@ -145,7 +159,7 @@ export const UPGRADE = (
   });
 
   client.once("close", () => {
-    console.log("A client disconnected");
+    logger.info("A client disconnected from WebSocket");
     if (authenticatedUserId) {
       const userSockets = connectedClients.get(authenticatedUserId);
       if (userSockets) {
@@ -153,8 +167,8 @@ export const UPGRADE = (
         if (userSockets.size === 0) {
           connectedClients.delete(authenticatedUserId);
         }
-        console.log(
-          `Client removed from registry for user ${authenticatedUserId}`,
+        logger.info(
+          `Client removed from WebSocket registry for user ${authenticatedUserId}`,
         );
       }
     }

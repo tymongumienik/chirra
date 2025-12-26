@@ -1,5 +1,4 @@
 import { Plus, Smile } from "lucide-react";
-import { Friend } from "../user-widget";
 import { Member } from "../member";
 import { Message } from "../message";
 import { ChannelSidebar } from "./channel-sidebar";
@@ -33,9 +32,6 @@ export default function Page() {
 
   useEffect(() => {
     const unsub = subscribe((message, data) => {
-      if (message === "pong") {
-        console.log("pong");
-      }
       if (message === "letter:user-details") {
         if (!UserDetailsLetterCompiler.Check(data)) return;
         overlayUsers(data.users);

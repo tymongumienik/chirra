@@ -74,17 +74,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        if (process.env.NODE_ENV === "development") {
-          console.log("[WS] Message received", msgObject);
-        }
-
         for (const cb of listenersRef.current) {
           cb(msgObject.message, msgObject.data);
         }
       };
 
       socket.onopen = () => {
-        console.log("WebSocket connected");
         connectingRef.current = false;
         retryCountRef.current = 0;
 
@@ -113,14 +108,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
       socket.onmessage = handleMessage;
 
-      socket.onerror = (err) => {
-        console.error("WebSocket error", err);
+      socket.onerror = () => {
         connectingRef.current = false;
         socket.close();
       };
 
       socket.onclose = () => {
-        console.log("WebSocket closed");
         connectingRef.current = false;
         setReady(false);
 

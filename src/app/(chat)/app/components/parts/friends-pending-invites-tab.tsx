@@ -1,7 +1,10 @@
 import { useUserStore } from "../../scripts/stores/who-am-i";
 import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
 import { UserWidget } from "../user-widget";
-import { DeleteFriendEntryData } from "@/app/api/[[...slugs]]/ws/shared-schema";
+import {
+  AcceptFriendRequestData,
+  DeleteFriendEntryData,
+} from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useWebSocket } from "@/app/libs/ws";
 
 export function FriendsPendingInvitesTab() {
@@ -48,7 +51,10 @@ export function FriendsPendingInvitesTab() {
               id={pair.requester.id}
               buttons={{
                 ACCEPT: () => {
-                  // TODO: accept friend request
+                  sendMessage<typeof AcceptFriendRequestData>(
+                    "void:accept-friend-request",
+                    { pair },
+                  );
                 },
                 DECLINE: () => {
                   sendMessage<typeof DeleteFriendEntryData>(
