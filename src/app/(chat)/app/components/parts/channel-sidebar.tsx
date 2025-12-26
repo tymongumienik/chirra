@@ -77,7 +77,7 @@ export function ChannelSidebar() {
             className="w-8 h-8 rounded-full"
           />
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-900 ${statusColors["offline"]}`}
+            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-900 ${statusColors["online"]}`}
           />
         </div>
         <div className="flex-1 min-w-0">

@@ -7,3 +7,20 @@ const ReceivedMessage = t.Object({
 });
 
 export const ReceivedMessageCompiler = TypeCompiler.Compile(ReceivedMessage);
+
+const SendFriendRequestData = t.Object({
+  username: t.String(),
+});
+
+export const SendFriendRequestDataCompiler = TypeCompiler.Compile(
+  SendFriendRequestData,
+);
+
+export const SendFriendRequestResponse = t.Object({
+  success: t.Boolean(),
+  error: t.Optional(t.String()),
+});
+
+export const SendFriendRequestResponseCompiler = TypeCompiler.Compile(
+  SendFriendRequestResponse,
+);

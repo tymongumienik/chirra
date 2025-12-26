@@ -1,12 +1,42 @@
-import { FormEvent, useState } from "react";
+import { SendFriendRequestResponseCompiler } from "@/app/api/[[...slugs]]/ws/shared-schema";
+import { useWebSocket } from "@/app/libs/ws";
+import { LoaderCircle } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
 
 export function FriendsAddTab() {
+  const { sendMessage, subscribe } = useWebSocket();
   const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ color: "white", text: "" });
 
   const sendRequest = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(username);
+    setLoading(true);
+    sendMessage("over:send-friend-request", {
+      username,
+    });
+    setMessage({ color: "", text: "" });
   };
+
+  useEffect(() => {
+    const unsub = subscribe((message, data) => {
+      if (message === "response:send-friend-request") {
+        if (!SendFriendRequestResponseCompiler.Check(data)) return;
+
+        if (data.success) {
+          setLoading(false);
+          setMessage({
+            color: "green",
+            text: "Success! A friend invite has been sent.",
+          });
+        } else {
+          setLoading(false);
+          setMessage({ color: "red", text: `${data.error}` });
+        }
+      }
+    });
+    return unsub;
+  }, [subscribe]);
 
   return (
     <div className="p-8 pt-6">
@@ -34,11 +64,21 @@ export function FriendsAddTab() {
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded transition-colors"
+          disabled={loading}
+          className="relative px-4 py-2 bg-accent text-white text-sm font-medium rounded flex justify-center items-center"
         >
-          Send Friend Request
+          <span className={loading ? "invisible" : ""}>
+            Send Friend Request
+          </span>
+
+          {loading && <LoaderCircle className="absolute animate-spin" />}
         </button>
       </form>
+      {message.text !== "" && (
+        <p className="mt-2 text-sm" style={{ color: message.color }}>
+          {message.text}
+        </p>
+      )}
     </div>
   );
 }

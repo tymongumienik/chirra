@@ -42,7 +42,6 @@ model Friend {
 enum FriendStatus {
   PENDING
   ACCEPTED
-  DECLINED
   BLOCKED
 }
 

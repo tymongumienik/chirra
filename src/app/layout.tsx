@@ -9,6 +9,9 @@ import { queryClient } from "./libs/query";
 export const metadata: Metadata = {
   title: "Chirra",
   description: "A full-stack chat service",
+  icons: {
+    icon: "/logo-white.svg",
+  },
 };
 
 export default async function RootLayout({

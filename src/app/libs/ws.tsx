@@ -37,6 +37,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const connectingRef = useRef(false);
   const destroyedRef = useRef(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ...
   useEffect(() => {
     destroyedRef.current = false;
     setReady(false);

@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useViewStore } from "../../scripts/stores/view";
 import { ServerIcon } from "../server-icon";
 import { useActiveServerIdStore } from "../../scripts/stores/active-server";
+import Image from "next/image";
 
 export function ServerSidebar() {
   const setView = useViewStore((s) => s.setView);
@@ -21,7 +22,7 @@ export function ServerSidebar() {
             : "bg-gray-900 hover:bg-accent"
         }`}
       >
-        C
+        <Image src="/logo-white.svg" alt="Logo" width={26} height={26} />
       </button>
 
       <div className="w-8 h-px bg-slate-600 rounded-full mb-2" />

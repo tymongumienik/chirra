@@ -13,6 +13,7 @@ import userRoutes from "./normal/user";
 import { getGeneralUserUpdateHandler } from "./ws/handlers/get-general-user-update";
 import { ReceivedMessageCompiler } from "./ws/shared-schema";
 import { pingHandler } from "./ws/handlers/ping";
+import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
@@ -47,8 +48,11 @@ export type WebSocketRoute = {
     data: Record<string, unknown> | null;
     user: User;
     session: Session;
-    reply: (message: string, data?: Record<string, unknown>) => void;
-  }) => void;
+    reply: <R extends Record<string, unknown> | null>(
+      message: string,
+      data?: R,
+    ) => void;
+  }) => Promise<void>;
 };
 
 export const UPGRADE = (
@@ -62,7 +66,8 @@ export const UPGRADE = (
   client.on("message", async (message) => {
     let messageParsed: Record<string, unknown> | null = null;
     try {
-      messageParsed = JSON.parse(message.toString());
+      const rawMessage = message.toString();
+      messageParsed = JSON.parse(rawMessage);
     } catch {
       client.terminate();
       return;
@@ -73,7 +78,11 @@ export const UPGRADE = (
       return;
     }
 
-    const routeHandlers = [pingHandler, getGeneralUserUpdateHandler];
+    const routeHandlers = [
+      pingHandler,
+      getGeneralUserUpdateHandler,
+      sendFriendRequestHandler,
+    ];
     const routes: Map<string, WebSocketRoute["execute"]> = new Map();
     for (const x of routeHandlers) {
       routes.set(x.message, x.execute);
@@ -109,7 +118,10 @@ export const UPGRADE = (
         data: messageParsed.data,
         user: user as User,
         session: session as Session,
-        reply: (message: string, data?: Record<string, unknown>) => {
+        reply: <R extends Record<string, unknown> | null>(
+          message: string,
+          data?: R,
+        ) => {
           client.send(JSON.stringify({ message, data }));
         },
       });
