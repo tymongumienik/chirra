@@ -48,7 +48,7 @@ export function FriendsPendingInvitesTab() {
               id={pair.requester.id}
               buttons={{
                 ACCEPT: () => {
-                  console.log("accepted");
+                  // TODO: accept friend request
                 },
                 DECLINE: () => {
                   sendMessage<typeof DeleteFriendEntryData>(
