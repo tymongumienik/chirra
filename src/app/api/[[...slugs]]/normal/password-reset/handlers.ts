@@ -11,6 +11,7 @@ import type { WithPrisma } from "@/types/database";
 import type { passwordResetSchema } from "./schema";
 import { lucia } from "@/app/libs/auth";
 import { Context } from "elysia";
+import { randomBytes } from "node:crypto";
 
 export const requestPasswordReset = async ({
   body,
@@ -56,6 +57,7 @@ export const requestPasswordReset = async ({
 
     const resetToken = await prisma.passwordReset.create({
       data: {
+        token: randomBytes(32).toString("base64url"),
         userId: user.id,
       },
       select: {

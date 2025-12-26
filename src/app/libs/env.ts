@@ -56,7 +56,7 @@ export const env = {
   IS_DEVELOPMENT: process.env.NODE_ENV === "development",
 
   // Optional
-  ALLOWED_ORIGINS: getEnvVarOptional("ALLOWED_ORIGINS"),
+  ALLOWED_ORIGINS: getEnvVarOptional("ALLOWED_ORIGINS", "")?.split(","),
 } as const;
 
 try {
@@ -66,6 +66,7 @@ try {
   env.EMAIL_USER;
   env.EMAIL_PASS;
   env.EMAIL_APP_URL;
+  env.ALLOWED_ORIGINS;
 } catch (error) {
   console.error("Environment validation failed:", error);
   throw error;

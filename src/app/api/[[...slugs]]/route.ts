@@ -22,7 +22,7 @@ import { announceStatusesLetter } from "./ws/letters/announce-statuses";
 import { prismaClient } from "@/app/libs/db";
 
 const corsConfig = {
-  origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
+  origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"] as HTTPMethod[],
   allowedHeaders: "*",
   exposedHeaders: "*",
@@ -130,11 +130,28 @@ export const UPGRADE = (
   request: import("next/server").NextRequest,
   context: import("next-ws/server").RouteContext<"/api/ws">,
 ) => {
+  const origin = request.headers.get("Origin");
+  if (
+    !origin ||
+    (env.IS_PRODUCTION && !(env.ALLOWED_ORIGINS ?? []).includes(origin))
+  ) {
+    client.close();
+    return;
+  }
+
   logger.info("A client connected to WebSocket");
 
   let authenticatedUserId: string | null = null;
 
+  const firstMessageTimeout = setTimeout(() => {
+    client.terminate();
+    logger.info(
+      "Client terminated for not sending any message in first 10 seconds",
+    );
+  }, 10000);
+
   client.on("message", async (message) => {
+    clearTimeout(firstMessageTimeout);
     let messageParsed: Record<string, unknown> | null = null;
     try {
       const rawMessage = message.toString();

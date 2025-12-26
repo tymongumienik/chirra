@@ -18,6 +18,7 @@ import {
 } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
 import type { authSchema } from "./schema";
+import { randomBytes } from "node:crypto";
 
 export const register = async ({
   body,
@@ -62,7 +63,9 @@ export const register = async ({
             create: {},
           },
           emailVerification: {
-            create: {},
+            create: {
+              token: randomBytes(32).toString("base64url"),
+            },
           },
         },
         select: {
@@ -118,6 +121,10 @@ export const login = async ({
     });
 
     if (!user) {
+      const _ = await Bun.password.verify(
+        body.password,
+        "$argon2id$v=19$m=65536,t=2,p=1$j25bruKXS3Rzdba3jkTD5Jb1MJUpbRlBBjjPBEYu3VU$bFe8LjCq9FqI7iyY/54l4+gSR1PtQmDFJEjNgBC0NEo",
+      ); // Timing attack protection
       throw new AuthenticationError();
     }
 

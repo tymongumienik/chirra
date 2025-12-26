@@ -52,7 +52,7 @@ enum FriendStatus {
 
 model EmailVerification {
   userId    String   @id @unique
-  token     String   @unique @default(cuid())
+  token     String   @unique
   expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '24 hours'"))
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -79,7 +79,7 @@ model Session {
 model PasswordReset {
   id        String   @id @default(cuid())
   userId    String
-  token     String   @unique @default(cuid())
+  token     String   @unique
   expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '30 minutes'"))
   createdAt DateTime @default(now())
   used      Boolean  @default(false)
