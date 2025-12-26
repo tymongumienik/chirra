@@ -16,6 +16,7 @@ export const whoAmI = async ({
       id: user.id,
     },
     select: {
+      id: true,
       username: true,
       displayname: true,
       email: true,

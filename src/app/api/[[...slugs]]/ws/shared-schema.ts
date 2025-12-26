@@ -1,14 +1,23 @@
 import { t } from "elysia";
 import { TypeCompiler } from "elysia/type-system";
 
-const ReceivedMessage = t.Object({
+// GENERAL
+
+export const ReceivedMessage = t.Object({
   message: t.String(),
   data: t.Record(t.String(), t.Unknown()),
 });
 
 export const ReceivedMessageCompiler = TypeCompiler.Compile(ReceivedMessage);
 
-const SendFriendRequestData = t.Object({
+const Invite = t.Object({
+  requester: t.Object({ id: t.String() }),
+  addressee: t.Object({ id: t.String() }),
+});
+
+// HANDLERS
+
+export const SendFriendRequestData = t.Object({
   username: t.String(),
 });
 
@@ -24,3 +33,43 @@ export const SendFriendRequestResponse = t.Object({
 export const SendFriendRequestResponseCompiler = TypeCompiler.Compile(
   SendFriendRequestResponse,
 );
+
+export const DeleteFriendEntryData = t.Object({
+  pair: Invite,
+});
+
+export const DeleteFriendEntryDataCompiler = TypeCompiler.Compile(
+  DeleteFriendEntryData,
+);
+
+// LETTERS
+
+export const PendingInvitesLetter = t.Object({
+  invites: t.Array(Invite),
+});
+
+export const PendingInvitesLetterCompiler =
+  TypeCompiler.Compile(PendingInvitesLetter);
+
+export const UserDetailsLetter = t.Object({
+  users: t.Array(
+    t.Object({
+      id: t.String(),
+      username: t.String(),
+      createdAt: t.Date(),
+      displayname: t.String(),
+      profile: t.Union([
+        t.Object({
+          avatar: t.Union([t.String(), t.Null()]),
+          bio: t.Union([t.String(), t.Null()]),
+          pronouns: t.Union([t.String(), t.Null()]),
+          location: t.Union([t.String(), t.Null()]),
+        }),
+        t.Null(),
+      ]),
+    }),
+  ),
+});
+
+export const UserDetailsLetterCompiler =
+  TypeCompiler.Compile(UserDetailsLetter);

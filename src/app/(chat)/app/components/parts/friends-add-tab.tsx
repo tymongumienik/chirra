@@ -1,4 +1,8 @@
-import { SendFriendRequestResponseCompiler } from "@/app/api/[[...slugs]]/ws/shared-schema";
+import {
+  SendFriendRequestData,
+  SendFriendRequestDataCompiler,
+  SendFriendRequestResponseCompiler,
+} from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useWebSocket } from "@/app/libs/ws";
 import { LoaderCircle } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
@@ -12,7 +16,7 @@ export function FriendsAddTab() {
   const sendRequest = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    sendMessage("over:send-friend-request", {
+    sendMessage<typeof SendFriendRequestData>("over:send-friend-request", {
       username,
     });
     setMessage({ color: "", text: "" });
@@ -39,7 +43,7 @@ export function FriendsAddTab() {
   }, [subscribe]);
 
   return (
-    <div className="p-8 pt-6">
+    <div className="p-8">
       <div className="mb-6">
         <h2 className="text-base font-semibold text-white uppercase mb-2">
           Add Friend

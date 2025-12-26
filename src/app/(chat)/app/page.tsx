@@ -2,7 +2,7 @@
 
 import { useLuciaContext } from "@/app/libs/lucia-context";
 import { useEffect } from "react";
-import { useUserStore } from "./scripts/db/who-am-i";
+import { useUserStore } from "./scripts/stores/who-am-i";
 import { WebSocketProvider } from "@/app/libs/ws";
 import Page from "./components/parts/page";
 import { LoadingScreen } from "@/app/libs/loading-screen";

@@ -5,7 +5,7 @@ import { Channel } from "../channel";
 import { useActiveChannelsIdStore } from "../../scripts/stores/active-channels";
 import { useActiveServerIdStore } from "../../scripts/stores/active-server";
 import Image from "next/image";
-import { useUserStore } from "../../scripts/db/who-am-i";
+import { useUserStore } from "../../scripts/stores/who-am-i";
 
 export function ChannelSidebar() {
   const activeServerId = useActiveServerIdStore((s) => s.activeServerId);

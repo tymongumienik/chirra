@@ -1,6 +1,7 @@
 import "server-only";
 import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
+import superjson from "superjson";
 import { env } from "@/app/libs/env";
 import { AppError, formatErrorResponse } from "@/app/libs/errors";
 import { lucia } from "@/app/libs/auth";
@@ -10,10 +11,10 @@ import { authMiddleware } from "./middleware";
 import passwordResetRoutes from "./normal/password-reset";
 import sessionRoutes from "./normal/sessions";
 import userRoutes from "./normal/user";
-import { getGeneralUserUpdateHandler } from "./ws/handlers/get-general-user-update";
 import { ReceivedMessageCompiler } from "./ws/shared-schema";
 import { pingHandler } from "./ws/handlers/ping";
 import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
+import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
@@ -42,6 +43,12 @@ export const PUT = app.fetch;
 export const PATCH = app.fetch;
 export const DELETE = app.fetch;
 
+const webSocketRouteHandlers = [
+  pingHandler,
+  sendFriendRequestHandler,
+  deleteFriendEntryHandler,
+];
+
 export type WebSocketRoute = {
   message: string;
   execute: (args: {
@@ -55,6 +62,8 @@ export type WebSocketRoute = {
   }) => Promise<void>;
 };
 
+const connectedClients = new Map<string, Set<import("ws").WebSocket>>();
+
 export const UPGRADE = (
   client: import("ws").WebSocket,
   server: import("ws").WebSocketServer,
@@ -63,11 +72,13 @@ export const UPGRADE = (
 ) => {
   console.log("A client connected");
 
+  let authenticatedUserId: string | null = null;
+
   client.on("message", async (message) => {
     let messageParsed: Record<string, unknown> | null = null;
     try {
       const rawMessage = message.toString();
-      messageParsed = JSON.parse(rawMessage);
+      messageParsed = superjson.parse(rawMessage);
     } catch {
       client.terminate();
       return;
@@ -78,13 +89,8 @@ export const UPGRADE = (
       return;
     }
 
-    const routeHandlers = [
-      pingHandler,
-      getGeneralUserUpdateHandler,
-      sendFriendRequestHandler,
-    ];
     const routes: Map<string, WebSocketRoute["execute"]> = new Map();
-    for (const x of routeHandlers) {
+    for (const x of webSocketRouteHandlers) {
       routes.set(x.message, x.execute);
     }
 
@@ -114,6 +120,16 @@ export const UPGRADE = (
         return;
       }
 
+      // Add to connected clients if not already added this session
+      if (user && !authenticatedUserId) {
+        authenticatedUserId = user.id;
+        if (!connectedClients.has(user.id)) {
+          connectedClients.set(user.id, new Set());
+        }
+        connectedClients.get(user.id)?.add(client);
+        console.log(`Client added to registry for user ${user.id}`);
+      }
+
       route({
         data: messageParsed.data,
         user: user as User,
@@ -122,7 +138,7 @@ export const UPGRADE = (
           message: string,
           data?: R,
         ) => {
-          client.send(JSON.stringify({ message, data }));
+          client.send(superjson.stringify({ message, data }));
         },
       });
     }
@@ -130,7 +146,37 @@ export const UPGRADE = (
 
   client.once("close", () => {
     console.log("A client disconnected");
+    if (authenticatedUserId) {
+      const userSockets = connectedClients.get(authenticatedUserId);
+      if (userSockets) {
+        userSockets.delete(client);
+        if (userSockets.size === 0) {
+          connectedClients.delete(authenticatedUserId);
+        }
+        console.log(
+          `Client removed from registry for user ${authenticatedUserId}`,
+        );
+      }
+    }
   });
+};
+
+export const sendWebSocketMessageToUser = (
+  userIds: string[],
+  message: string,
+  data?: Record<string, unknown>,
+) => {
+  for (const userId of userIds) {
+    const sockets = connectedClients.get(userId);
+    if (sockets) {
+      const payload = superjson.stringify({ message, data });
+      for (const socket of sockets) {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(payload);
+        }
+      }
+    }
+  }
 };
 
 export type API = typeof app;

@@ -1,5 +1,5 @@
 import { Plus, Smile } from "lucide-react";
-import { Friend } from "../friend";
+import { Friend } from "../user-widget";
 import { Member } from "../member";
 import { Message } from "../message";
 import { ChannelSidebar } from "./channel-sidebar";
@@ -12,20 +12,41 @@ import { useViewStore } from "../../scripts/stores/view";
 import { useEffect } from "react";
 import { useWebSocket } from "@/app/libs/ws";
 import { LoadingScreen } from "@/app/libs/loading-screen";
+import {
+  PendingInvitesLetterCompiler,
+  UserDetailsLetterCompiler,
+} from "@/app/api/[[...slugs]]/ws/shared-schema";
+import { useUserDataStore } from "../../scripts/stores/user-data";
+import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
+import SuperJSON from "superjson";
+import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
 
 export default function Page() {
   const { subscribe, ready } = useWebSocket();
   const view = useViewStore((s) => s.view);
   const friendTab = useFriendTabStore((s) => s.friendTab);
+  const overlayUsers = useUserDataStore((s) => s.overlayUsers);
+  const overwritePendingInvitePairs = usePendingInvitePairStore(
+    (s) => s.overwritePairs,
+  );
+  const pendingInvitePairs = usePendingInvitePairStore((s) => s.getPairs());
 
   useEffect(() => {
-    const unsub = subscribe((message) => {
+    const unsub = subscribe((message, data) => {
       if (message === "pong") {
         console.log("pong");
       }
+      if (message === "letter:user-details") {
+        if (!UserDetailsLetterCompiler.Check(data)) return;
+        overlayUsers(data.users);
+      }
+      if (message === "letter:pending-invites") {
+        if (!PendingInvitesLetterCompiler.Check(data)) return;
+        overwritePendingInvitePairs(data.invites);
+      }
     });
     return unsub;
-  }, [subscribe]);
+  }, [subscribe, overlayUsers, overwritePendingInvitePairs]);
 
   if (!ready) return <LoadingScreen />;
 
@@ -40,10 +61,8 @@ export default function Page() {
 
           <div className="flex-1 overflow-y-auto">
             {["online", "all", "pending", "blocked"].includes(friendTab) && (
-              <div className="py-4">
-                {[].map((friend, idx) => (
-                  <Friend key={idx} {...friend} />
-                ))}
+              <div>
+                {friendTab === "pending" && <FriendsPendingInvitesTab />}
               </div>
             )}
 
@@ -56,7 +75,7 @@ export default function Page() {
             <ChannelTopBar />
 
             <div className="flex-1 overflow-y-auto">
-              <div className="py-4">
+              <div>
                 {[].map((msg, idx) => (
                   <Message key={msg.id} {...msg} />
                 ))}

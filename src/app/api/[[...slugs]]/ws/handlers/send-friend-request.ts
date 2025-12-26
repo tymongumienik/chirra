@@ -4,6 +4,7 @@ import {
   type SendFriendRequestResponse,
 } from "../shared-schema";
 import { prismaClient } from "@/app/libs/db";
+import { sendPendingInvitesLetter } from "../letters/pending-invites";
 
 const sendFriendRequestHandler: WebSocketRoute = {
   message: "over:send-friend-request",
@@ -75,6 +76,9 @@ const sendFriendRequestHandler: WebSocketRoute = {
             status: "PENDING",
           },
         });
+
+        await sendPendingInvitesLetter(requestingUser);
+        await sendPendingInvitesLetter(targetUser.id);
 
         response = {
           success: true,

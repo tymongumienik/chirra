@@ -1,0 +1,69 @@
+import { Check, MessageCircle, MoreVertical, X } from "lucide-react";
+import { useUserDataStore } from "../scripts/stores/user-data";
+import { statusColors } from "../constants/status";
+import Image from "next/image";
+
+export function UserWidget({
+  id,
+  showUserName = true,
+  buttons,
+}: {
+  id: string;
+  showUserName?: boolean;
+  buttons?: Partial<Record<"ACCEPT" | "DECLINE" | "CANCEL", () => void>>;
+}) {
+  const userInfo = useUserDataStore((s) => s.getUser(id));
+
+  if (!userInfo) return null;
+
+  const buttonInfo = [
+    { key: "ACCEPT", title: "Accept", Icon: Check },
+    { key: "DECLINE", title: "Decline", Icon: X },
+    { key: "CANCEL", title: "Cancel", Icon: X },
+  ] as const;
+
+  return (
+    <div className="flex items-center gap-3 px-2 py-3 border-t border-gray-800 hover:bg-gray-900/30 group transition-colors">
+      <div className="relative">
+        <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold">
+          <Image
+            src={userInfo.profile?.avatar || "/default-avatar.png"}
+            alt="Avatar"
+            width={32}
+            height={32}
+            className="w-8 h-8 rounded-full"
+          />
+        </div>
+        <div
+          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 ${statusColors["online"]}`}
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold text-white">
+          {userInfo?.displayname}
+        </div>
+        {showUserName && (
+          <div className="text-xs text-gray-300">{userInfo?.username}</div>
+        )}
+        <div className="text-xs text-gray-300">{userInfo?.profile?.bio}</div>
+      </div>
+      {buttons !== undefined && (
+        <div className="flex items-center gap-2 transition-opacity">
+          {buttonInfo.map(({ key, title, Icon }) =>
+            buttons[key] ? (
+              <button
+                key={key}
+                type="button"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800"
+                onClick={buttons[key]}
+                title={title}
+              >
+                <Icon className="w-5 h-5 text-gray-300" />
+              </button>
+            ) : null,
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

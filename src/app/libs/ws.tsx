@@ -1,3 +1,4 @@
+import { Static, TSchema } from "elysia";
 import React, {
   createContext,
   useContext,
@@ -5,11 +6,13 @@ import React, {
   useRef,
   useState,
 } from "react";
+import superjson from "superjson";
+import { Value } from "@sinclair/typebox/value";
 
 type WebSocketContextType = {
   ws: WebSocket | null;
   ready: boolean; // only true after ping/pong
-  sendMessage: (message: string, data?: Record<string, unknown>) => void;
+  sendMessage: <S extends TSchema>(message: string, data: Static<S>) => void;
   subscribe: (
     cb: (message: string, data?: Record<string, unknown>) => void,
   ) => () => void;
@@ -60,12 +63,19 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         if (typeof msg.data === "string") text = msg.data;
         else text = await msg.data.text();
 
-        const msgObject = JSON.parse(text);
+        const msgObject = superjson.parse<{
+          message: string;
+          data: Record<string, unknown>;
+        }>(text);
 
         if (msgObject.message === "pong") {
           // handshake complete
           setReady(true);
           return;
+        }
+
+        if (process.env.NODE_ENV === "development") {
+          console.log("[WS] Message received", msgObject);
         }
 
         for (const cb of listenersRef.current) {
@@ -85,10 +95,13 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         }, 5000);
 
-        sendMessage("ping");
+        sendMessage("over:ping");
 
         socket.onmessage = (msg) => {
-          const data = JSON.parse(msg.data);
+          const data = superjson.parse<{
+            message: string;
+            data: Record<string, unknown>;
+          }>(msg.data);
           if (data.message === "pong") {
             setReady(true);
             clearTimeout(pingTimeout);
@@ -130,12 +143,21 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const sendMessage = (message: string, data?: Record<string, unknown>) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ message, data: data || {} }));
-    } else {
+  const sendMessage = <S extends TSchema>(
+    message: string,
+    data?: Static<S>,
+  ) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) {
       console.warn("WebSocket not open :(");
+      return;
     }
+
+    wsRef.current.send(
+      superjson.stringify({
+        message,
+        data: data ?? {},
+      }),
+    );
   };
 
   const subscribe = (
