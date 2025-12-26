@@ -58,10 +58,10 @@ bun run email:dev # Email preview server
 - [x] Session management
 - [x] User profiles
 - [x] Argon2 password hashing
-- [ ] WebSocket communication, live updates
+- [x] WebSocket communication, live updates
 - [ ] Chat system: database schema, message storage
-- [ ] Scaffold frontend: login/registration, email verification
-- [ ] Create frontend for chat interface 
+- [x] Scaffold frontend: login/registration, email verification
+- [x] Create frontend for chat interface 
 - [x] Password reset
 - [ ] Profile settings page
 - [x] Rate limiting
