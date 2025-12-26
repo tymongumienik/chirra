@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tymongumienik/chirra/refs/heads/main/public/logo-hd.png" alt="Logo" width="200">
+  <img src="https://raw.githubusercontent.com/tymongumienik/chirra/refs/heads/main/public/logo-hd.png" alt="Logo (by off.777 on Discord)" width="200">
   <br>
   <h1>Chirra</h1>
 </div>
