@@ -11,24 +11,23 @@ import { useFriendTabStore } from "../../scripts/stores/friends-tab";
 import { useViewStore } from "../../scripts/stores/view";
 import { useEffect } from "react";
 import { useWebSocket } from "@/app/libs/ws";
+import { LoadingScreen } from "@/app/libs/loading-screen";
 
 export default function Page() {
-  const { sendMessage, subscribe } = useWebSocket();
+  const { subscribe, ready } = useWebSocket();
   const view = useViewStore((s) => s.view);
   const friendTab = useFriendTabStore((s) => s.friendTab);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      // @ts-expect-error
-      window.wsSendMessage = sendMessage;
-    }
-
-    subscribe(async (message, data) => {
-      if (message === "get-general-user-update") {
-        console.log(data?.user);
+    const unsub = subscribe((message) => {
+      if (message === "pong") {
+        console.log("pong");
       }
     });
-  }, [sendMessage, subscribe]);
+    return unsub;
+  }, [subscribe]);
+
+  if (!ready) return <LoadingScreen />;
 
   return (
     <div className="flex h-screen bg-background text-white overflow-hidden inter">

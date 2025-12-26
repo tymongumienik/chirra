@@ -9,7 +9,7 @@ export function FriendsAddTab() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 pt-6">
       <div className="mb-6">
         <h2 className="text-base font-semibold text-white uppercase mb-2">
           Add Friend
