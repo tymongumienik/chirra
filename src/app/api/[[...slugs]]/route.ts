@@ -42,12 +42,12 @@ export const DELETE = app.fetch;
 
 export type WebSocketRoute = {
   message: string;
-  execute: (
-    data: Record<string, unknown> | null,
-    user: User | null,
-    session: Session | null,
-  ) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  execute: (args: {
+    data: Record<string, unknown> | null;
+    user: User;
+    session: Session;
+    reply: (message: string, data: Record<string, unknown>) => void;
+  }) => void;
 };
 
 export const UPGRADE = (
@@ -73,7 +73,7 @@ export const UPGRADE = (
     }
 
     const routeHandlers = [getGeneralUserUpdateHandler];
-    const routes = new Map();
+    const routes: Map<string, WebSocketRoute["execute"]> = new Map();
     for (const x of routeHandlers) {
       routes.set(x.message, x.execute);
     }
@@ -93,7 +93,7 @@ export const UPGRADE = (
         const result = await lucia.validateSession(sessionId);
         user = result.user;
         session = result.session;
-        if (user && session) {
+        if (user !== null && session !== null) {
           success = true;
         }
       }
@@ -104,7 +104,14 @@ export const UPGRADE = (
         return;
       }
 
-      route(messageParsed.data, user, session);
+      route({
+        data: messageParsed.data,
+        user: user as User,
+        session: session as Session,
+        reply: (message: string, data: Record<string, unknown>) => {
+          client.send(JSON.stringify({ message, data }));
+        },
+      });
     }
   });
 

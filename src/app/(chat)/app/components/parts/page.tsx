@@ -23,8 +23,10 @@ export default function Page() {
       window.wsSendMessage = sendMessage;
     }
 
-    subscribe(async (msg) => {
-      console.log("Received message:", msg);
+    subscribe(async (message, data) => {
+      if (message === "get-general-user-update") {
+        console.log(data?.user);
+      }
     });
   }, [sendMessage, subscribe]);
 

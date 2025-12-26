@@ -9,7 +9,9 @@ import React, {
 type WebSocketContextType = {
   ws: WebSocket | null;
   sendMessage: (message: string, data?: Record<string, unknown>) => void;
-  subscribe: (cb: (msg: Record<string, unknown>) => void) => () => void;
+  subscribe: (
+    cb: (message: string, data?: Record<string, unknown>) => void,
+  ) => () => void;
 };
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -22,9 +24,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const listenersRef = useRef<Set<(msg: Record<string, unknown>) => void>>(
-    new Set(),
-  );
+  const listenersRef = useRef<
+    Set<(message: string, data?: Record<string, unknown>) => void>
+  >(new Set());
 
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -61,8 +63,16 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       socket.onmessage = async (msg) => {
-        const msgObject = JSON.parse(await msg.data.text());
-        for (const x of listenersRef.current) x(msgObject);
+        let text: string;
+        if (typeof msg.data === "string") {
+          text = msg.data;
+        } else {
+          text = await msg.data.text();
+        }
+
+        const msgObject = JSON.parse(text);
+        for (const x of listenersRef.current)
+          x(msgObject.message, msgObject.data);
       };
 
       socket.onerror = (err) => {
@@ -106,7 +116,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const subscribe = (cb: (msg: Record<string, unknown>) => void) => {
+  const subscribe = (
+    cb: (message: string, data?: Record<string, unknown>) => void,
+  ) => {
     listenersRef.current.add(cb);
     return () => listenersRef.current.delete(cb);
   };
