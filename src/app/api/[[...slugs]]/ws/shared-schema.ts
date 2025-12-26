@@ -81,3 +81,10 @@ export const UserDetailsLetter = t.Object({
 
 export const UserDetailsLetterCompiler =
   TypeCompiler.Compile(UserDetailsLetter);
+
+export const FriendsListLetter = t.Object({
+  friends: t.Array(t.String()),
+});
+
+export const FriendsListLetterCompiler =
+  TypeCompiler.Compile(FriendsListLetter);

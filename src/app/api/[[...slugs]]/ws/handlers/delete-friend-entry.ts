@@ -3,6 +3,7 @@ import { sendPendingInvitesLetter } from "../letters/pending-invites";
 import { DeleteFriendEntryDataCompiler } from "../shared-schema";
 import { prismaClient } from "@/app/libs/db";
 import type { FriendStatus } from "@prisma/client";
+import { sendFriendsListLetter } from "../letters/friends-list";
 
 const deleteFriendEntryHandler: WebSocketRoute = {
   message: "void:delete-friend-entry",
@@ -37,6 +38,8 @@ const deleteFriendEntryHandler: WebSocketRoute = {
       },
     });
 
+    sendFriendsListLetter(pair.requester.id);
+    sendFriendsListLetter(pair.addressee.id);
     sendPendingInvitesLetter(pair.requester.id);
     sendPendingInvitesLetter(pair.addressee.id);
   },

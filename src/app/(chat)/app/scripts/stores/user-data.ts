@@ -26,7 +26,7 @@ export const useUserDataStore = create<UserDataStore>()(
           return { userData: next };
         }),
       setUser: (user) =>
-        set((state) => ({
+        set(() => ({
           userData: { ...get().userData, [user.id]: user },
         })),
       getUser: (id) => get().userData[id],

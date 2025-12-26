@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useWebSocket } from "@/app/libs/ws";
 import { LoadingScreen } from "@/app/libs/loading-screen";
 import {
+  FriendsListLetterCompiler,
   PendingInvitesLetterCompiler,
   UserDetailsLetterCompiler,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
@@ -19,6 +20,8 @@ import { useUserDataStore } from "../../scripts/stores/user-data";
 import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
 import SuperJSON from "superjson";
 import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
+import { useFriendsStore } from "../../scripts/stores/friends";
+import { FriendsAllTab } from "./friends-all-tab";
 
 export default function Page() {
   const { subscribe, ready } = useWebSocket();
@@ -28,7 +31,7 @@ export default function Page() {
   const overwritePendingInvitePairs = usePendingInvitePairStore(
     (s) => s.overwritePairs,
   );
-  const pendingInvitePairs = usePendingInvitePairStore((s) => s.getPairs());
+  const overwriteFriends = useFriendsStore((s) => s.overwriteFriends);
 
   useEffect(() => {
     const unsub = subscribe((message, data) => {
@@ -40,9 +43,13 @@ export default function Page() {
         if (!PendingInvitesLetterCompiler.Check(data)) return;
         overwritePendingInvitePairs(data.invites);
       }
+      if (message === "letter:friends-list") {
+        if (!FriendsListLetterCompiler.Check(data)) return;
+        overwriteFriends(data.friends);
+      }
     });
     return unsub;
-  }, [subscribe, overlayUsers, overwritePendingInvitePairs]);
+  }, [subscribe, overlayUsers, overwritePendingInvitePairs, overwriteFriends]);
 
   if (!ready) return <LoadingScreen />;
 
@@ -56,12 +63,10 @@ export default function Page() {
           <FriendsTopBar />
 
           <div className="flex-1 overflow-y-auto">
-            {["online", "all", "pending", "blocked"].includes(friendTab) && (
-              <div>
-                {friendTab === "pending" && <FriendsPendingInvitesTab />}
-              </div>
-            )}
-
+            {/* TODO: friendTab === "online" */}
+            {friendTab === "all" && <FriendsAllTab />}
+            {friendTab === "pending" && <FriendsPendingInvitesTab />}
+            {/* TODO: friendTab === "blocked" */}
             {friendTab === "add" && <FriendsAddTab />}
           </div>
         </div>

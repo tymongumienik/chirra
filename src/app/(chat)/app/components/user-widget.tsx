@@ -7,10 +7,12 @@ export function UserWidget({
   id,
   showUserName = true,
   buttons,
+  topBorder = true,
 }: {
   id: string;
   showUserName?: boolean;
   buttons?: Partial<Record<"ACCEPT" | "DECLINE" | "CANCEL", () => void>>;
+  topBorder?: boolean;
 }) {
   const userInfo = useUserDataStore((s) => s.getUser(id));
 
@@ -23,7 +25,9 @@ export function UserWidget({
   ] as const;
 
   return (
-    <div className="flex items-center gap-3 px-2 py-3 border-t border-gray-800 hover:bg-gray-900/30 group transition-colors">
+    <div
+      className={`flex items-center gap-3 px-2 py-3 ${topBorder ? "border-t border-gray-800" : ""} hover:bg-gray-900/30 group transition-colors`}
+    >
       <div className="relative">
         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold">
           <Image
