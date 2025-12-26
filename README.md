@@ -1,23 +1,24 @@
-# Chirra
-
-> Chirra is in very early development and is not ready for any production use.
+<div align="center">
+  <img src="https://raw.githubusercontent.com/tymongumienik/chirra/refs/heads/main/public/logo-hd.png" alt="Logo" width="200">
+  <br>
+  <h1>Chirra</h1>
+</div>
 
 Chirra (`/ˈkʲira/`) is a full-stack Next.js chat service, powered by WebSockets.
+
+> Chirra is in very early development and is not ready for any production use.
 
 ## Stack
 
 - Bun
-- Next.js 16 (App Router)
+- Next.js 16 (App Router) & next-ws
 - Tailwind CSS
 - Zustand
 - React Query
-- Elysia
-- Eden Treaty
+- Elysia (Eden Treaty)
+- Prisma (with PostgreSQL)
 - Lucia
-- PostgreSQL
-- Prisma
-- React Email
-- Nodemailer
+- React Email & Nodemailer
 - Biome
 
 ## Setup
