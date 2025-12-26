@@ -45,27 +45,42 @@ const deleteFriendEntryHandler: WebSocketRoute = {
     }
 
     if (statusFetch.status === "BLOCKED_BOTH_WAYS") {
-      // TODO: handle both ways blocked
-      return;
-    }
-
-    if (!allowedStatuses.includes(statusFetch.status)) {
-      return;
-    }
-
-    await prismaClient.friend.delete({
-      where: {
-        requesterId_addresseeId: {
-          requesterId: pair.requester.id,
-          addresseeId: pair.addressee.id,
+      await prismaClient.friend.update({
+        where: {
+          requesterId_addresseeId: {
+            requesterId: pair.requester.id,
+            addresseeId: pair.addressee.id,
+          },
         },
-      },
-    });
+        data: {
+          status:
+            user.id === pair.requester.id
+              ? "ADDRESSEE_BLOCKED_REQUESTER"
+              : "REQUESTER_BLOCKED_ADDRESSEE",
+        },
+      });
+    } else {
+      if (!allowedStatuses.includes(statusFetch.status)) {
+        return;
+      }
 
-    sendFriendsListLetter(pair.requester.id);
-    sendFriendsListLetter(pair.addressee.id);
-    sendPendingInvitesLetter(pair.requester.id);
-    sendPendingInvitesLetter(pair.addressee.id);
+      await prismaClient.friend.delete({
+        where: {
+          requesterId_addresseeId: {
+            requesterId: pair.requester.id,
+            addresseeId: pair.addressee.id,
+          },
+        },
+      });
+
+      sendFriendsListLetter(pair.requester.id);
+      sendFriendsListLetter(pair.addressee.id);
+    }
+
+    if (statusFetch.status === "PENDING") {
+      sendPendingInvitesLetter(pair.requester.id);
+      sendPendingInvitesLetter(pair.addressee.id);
+    }
   },
 };
 

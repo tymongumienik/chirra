@@ -27,7 +27,7 @@ const sendFriendRequestHandler: WebSocketRoute = {
     if (!targetUser) {
       response = {
         success: false,
-        error: "User not found",
+        error: "User not found.",
       };
     } else if (targetUser.id === requestingUser) {
       response = {
@@ -54,6 +54,11 @@ const sendFriendRequestHandler: WebSocketRoute = {
       });
 
       if (existingRequest) {
+        const blockedMessage =
+          existingRequest.requesterId === requestingUser
+            ? "Unblock this user before sending them a friend request!"
+            : "This user has blocked you.";
+
         response = {
           success: false,
           error: {
@@ -62,10 +67,9 @@ const sendFriendRequestHandler: WebSocketRoute = {
                 ? "You have already sent a friend request to this user!"
                 : "This user has already invited you!",
             ACCEPTED: "You are already friends with this user!",
-            BLOCKED:
-              existingRequest.requesterId === requestingUser
-                ? "Unblock this user before sending them a friend request!"
-                : "This user has blocked you.",
+            REQUESTER_BLOCKED_ADDRESSEE: blockedMessage,
+            ADDRESSEE_BLOCKED_REQUESTER: blockedMessage,
+            BLOCKED_BOTH_WAYS: blockedMessage,
           }[existingRequest.status],
         };
       } else {
