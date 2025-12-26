@@ -42,7 +42,9 @@ model Friend {
 enum FriendStatus {
   PENDING
   ACCEPTED
-  BLOCKED
+  REQUESTER_BLOCKED_ADDRESSEE
+  ADDRESSEE_BLOCKED_REQUESTER
+  BLOCKED_BOTH_WAYS
 }
 
 model EmailVerification {
