@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { statusColors } from "../constants/status";
 
 export function Member({
   username,
@@ -6,7 +7,7 @@ export function Member({
   avatar,
 }: {
   username: string;
-  status: "online" | "idle" | "dnd" | "offline";
+  status: "online" | "offline";
   avatar: string;
 }) {
   return (

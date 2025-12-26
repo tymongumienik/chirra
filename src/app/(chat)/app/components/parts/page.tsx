@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useWebSocket } from "@/app/libs/ws";
 import { LoadingScreen } from "@/app/libs/loading-screen";
 import {
+  AnnounceStatusesLetterCompiler,
   FriendsListLetterCompiler,
   PendingInvitesLetterCompiler,
   UserDetailsLetterCompiler,
@@ -22,9 +23,10 @@ import SuperJSON from "superjson";
 import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
 import { useFriendsStore } from "../../scripts/stores/friends";
 import { FriendsAllTab } from "./friends-all-tab";
+import { FriendsOnlineTab } from "./friends-online-tab";
 
 export default function Page() {
-  const { subscribe, ready } = useWebSocket();
+  const { subscribe, sendMessage, ready } = useWebSocket();
   const view = useViewStore((s) => s.view);
   const friendTab = useFriendTabStore((s) => s.friendTab);
   const overlayUsers = useUserDataStore((s) => s.overlayUsers);
@@ -32,8 +34,13 @@ export default function Page() {
     (s) => s.overwritePairs,
   );
   const overwriteFriends = useFriendsStore((s) => s.overwriteFriends);
+  const setStatus = useFriendsStore((s) => s.setStatus);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      sendMessage("void:heartbeat", {});
+    }, 10000);
+
     const unsub = subscribe((message, data) => {
       if (message === "letter:user-details") {
         if (!UserDetailsLetterCompiler.Check(data)) return;
@@ -45,11 +52,30 @@ export default function Page() {
       }
       if (message === "letter:friends-list") {
         if (!FriendsListLetterCompiler.Check(data)) return;
-        overwriteFriends(data.friends);
+        overwriteFriends(
+          data.friends.map((x) => ({ id: x, status: "offline" })),
+        );
+      }
+      if (message === "letter:announce-statuses") {
+        if (!AnnounceStatusesLetterCompiler.Check(data)) return;
+        for (const [id, status] of Object.entries(data.statuses)) {
+          setStatus(id, status ? "online" : "offline");
+        }
       }
     });
-    return unsub;
-  }, [subscribe, overlayUsers, overwritePendingInvitePairs, overwriteFriends]);
+
+    return () => {
+      unsub();
+      clearInterval(interval);
+    };
+  }, [
+    sendMessage,
+    subscribe,
+    overlayUsers,
+    overwritePendingInvitePairs,
+    overwriteFriends,
+    setStatus,
+  ]);
 
   if (!ready) return <LoadingScreen />;
 
@@ -63,7 +89,7 @@ export default function Page() {
           <FriendsTopBar />
 
           <div className="flex-1 overflow-y-auto">
-            {/* TODO: friendTab === "online" */}
+            {friendTab === "online" && <FriendsOnlineTab />}
             {friendTab === "all" && <FriendsAllTab />}
             {friendTab === "pending" && <FriendsPendingInvitesTab />}
             {/* TODO: friendTab === "blocked" */}

@@ -17,6 +17,9 @@ import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
 import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
 import { acceptFriendRequestHandler } from "./ws/handlers/accept-friend-request";
 import { logger } from "@/app/libs/logger";
+import { heartbeatHandler } from "./ws/handlers/heartbeat";
+import { announceStatusesLetter } from "./ws/letters/announce-statuses";
+import { prismaClient } from "@/app/libs/db";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? env.ALLOWED_ORIGINS?.split(",") : true,
@@ -50,6 +53,7 @@ const webSocketRouteHandlers = [
   sendFriendRequestHandler,
   deleteFriendEntryHandler,
   acceptFriendRequestHandler,
+  heartbeatHandler,
 ];
 
 // WebSocket communication is bidirectional, and this codebase
@@ -77,6 +81,48 @@ export type WebSocketRoute = {
 };
 
 const connectedClients = new Map<string, Set<import("ws").WebSocket>>();
+const lastSeen = new Map<string, number>();
+
+export function isActive(userid: string) {
+  return connectedClients.has(userid);
+}
+
+export function updateLastSeen(userId: string) {
+  lastSeen.set(userId, Date.now());
+}
+
+async function announceStatusToFriends(userId: string) {
+  const friends = await prismaClient.friend.findMany({
+    where: {
+      OR: [
+        {
+          requesterId: userId,
+        },
+        {
+          addresseeId: userId,
+        },
+      ],
+      status: "ACCEPTED",
+    },
+    select: {
+      requesterId: true,
+      addresseeId: true,
+    },
+  });
+
+  announceStatusesLetter(
+    friends.map((x) =>
+      x.requesterId === userId ? x.addresseeId : x.requesterId,
+    ),
+    [userId],
+  );
+}
+
+async function removeUserOnline(userId: string) {
+  connectedClients.delete(userId);
+  announceStatusToFriends(userId);
+  logger.info(`Client removed from WebSocket registry for user ${userId}`);
+}
 
 export const UPGRADE = (
   client: import("ws").WebSocket,
@@ -134,6 +180,10 @@ export const UPGRADE = (
         return;
       }
 
+      if (user) {
+        lastSeen.set(user.id, Date.now());
+      }
+
       // Add to connected clients if not already added this session
       if (user && !authenticatedUserId) {
         authenticatedUserId = user.id;
@@ -158,21 +208,29 @@ export const UPGRADE = (
     }
   });
 
-  client.once("close", () => {
+  client.once("close", async () => {
     logger.info("A client disconnected from WebSocket");
-    if (authenticatedUserId) {
-      const userSockets = connectedClients.get(authenticatedUserId);
-      if (userSockets) {
-        userSockets.delete(client);
-        if (userSockets.size === 0) {
-          connectedClients.delete(authenticatedUserId);
-        }
+  });
+
+  const interval = setInterval(() => {
+    if (
+      authenticatedUserId &&
+      lastSeen.has(authenticatedUserId) &&
+      connectedClients.has(authenticatedUserId)
+    ) {
+      const lastSeenTime = lastSeen.get(authenticatedUserId);
+      if (lastSeenTime && (Date.now() - lastSeenTime) / 1000 > 15) {
+        removeUserOnline(authenticatedUserId);
+        clearInterval(interval);
+        client.close();
         logger.info(
           `Client removed from WebSocket registry for user ${authenticatedUserId}`,
         );
       }
     }
-  });
+  }, 10000); // every 10 seconds
+
+  return () => clearInterval(interval);
 };
 
 export const sendWebSocketMessageToUser = (

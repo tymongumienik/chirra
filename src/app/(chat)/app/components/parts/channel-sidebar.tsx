@@ -40,6 +40,7 @@ export function ChannelSidebar() {
               Direct Messages
               <Plus className="w-4 h-4" />
             </div>
+            <div className="flex flex-col gap-1"></div>
           </div>
         </div>
       ) : (

@@ -2,6 +2,7 @@ import { Check, MessageCircle, MoreVertical, X } from "lucide-react";
 import { useUserDataStore } from "../scripts/stores/user-data";
 import { statusColors } from "../constants/status";
 import Image from "next/image";
+import { useFriendsStore } from "../scripts/stores/friends";
 
 export function UserWidget({
   id,
@@ -15,6 +16,9 @@ export function UserWidget({
   topBorder?: boolean;
 }) {
   const userInfo = useUserDataStore((s) => s.getUser(id));
+  const status = useFriendsStore(
+    (s) => s.friends.find((x) => x.id === id)?.status,
+  );
 
   if (!userInfo) return null;
 
@@ -38,9 +42,11 @@ export function UserWidget({
             className="w-8 h-8 rounded-full"
           />
         </div>
-        <div
-          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 ${statusColors["online"]}`}
-        />
+        {status !== undefined && (
+          <div
+            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 ${statusColors[status]}`}
+          />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-white">

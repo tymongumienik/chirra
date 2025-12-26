@@ -88,3 +88,11 @@ export const FriendsListLetter = t.Object({
 
 export const FriendsListLetterCompiler =
   TypeCompiler.Compile(FriendsListLetter);
+
+export const AnnounceStatusesLetter = t.Object({
+  statuses: t.Record(t.String(), t.Boolean()),
+});
+
+export const AnnounceStatusesLetterCompiler = TypeCompiler.Compile(
+  AnnounceStatusesLetter,
+);

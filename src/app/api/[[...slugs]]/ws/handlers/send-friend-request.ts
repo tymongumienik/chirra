@@ -47,9 +47,6 @@ const sendFriendRequestHandler: WebSocketRoute = {
               addresseeId: requestingUser,
             },
           ],
-          status: {
-            in: ["PENDING", "ACCEPTED", "BLOCKED"],
-          },
         },
       });
 
