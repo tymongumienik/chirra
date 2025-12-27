@@ -61,7 +61,7 @@ const webSocketRouteHandlers = [
 // WebSocket communication is bidirectional, and this codebase
 // uses different names for requests sent either way.
 // A request from client to server is called a "message" or "request",
-// a response from the server is either a "reply" (if directly linked) to a
+// a response from the server is either a "reply" (if directly linked, used with sendMessageAndWaitForReply) to a
 // message, or a "letter" (if a generic update, i.e. broadcasting pending invites)
 
 // WebSocket transmissions are in the format of "prefix:dash-case", where prefix is either:

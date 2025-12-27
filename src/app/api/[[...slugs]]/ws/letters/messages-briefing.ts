@@ -20,6 +20,7 @@ export async function sendDMBriefingLetter(
       },
       take: 50, // only 50 messages per user
     });
+    messages.reverse();
 
     messagesByUser[u] = messages;
   }

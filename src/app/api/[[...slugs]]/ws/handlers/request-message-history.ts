@@ -29,11 +29,12 @@ const requestMessageHistoryHandler: WebSocketRoute = {
           channelId: null,
         },
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc",
         },
         take: 50,
         skip: page * 50,
       });
+      messages.reverse();
 
       reply("response:request-message-history", {
         requestId,

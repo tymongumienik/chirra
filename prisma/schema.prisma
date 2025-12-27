@@ -7,24 +7,22 @@ datasource db {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  username          String             @unique
-  displayname       String
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  password          String
-  emailVerification EmailVerification?
-  profile           Profile?
-  sessions          Session[]
-  passwordResets    PasswordReset[]
-  auditLogs         AuditLog[]
-
-  sentFriendRequests     Friend[] @relation("FriendRequester")
-  receivedFriendRequests Friend[] @relation("FriendAddressee")
-
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
+  id                     String             @id @default(cuid())
+  email                  String             @unique
+  username               String             @unique
+  displayname            String
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  password               String
+  auditLogs              AuditLog[]
+  emailVerification      EmailVerification?
+  receivedFriendRequests Friend[]           @relation("FriendAddressee")
+  sentFriendRequests     Friend[]           @relation("FriendRequester")
+  sentMessages           Message[]          @relation("SentMessages")
+  receivedMessages       Message[]          @relation("ReceivedMessages")
+  passwordResets         PasswordReset[]
+  profile                Profile?
+  sessions               Session[]
 }
 
 model Friend {
@@ -33,27 +31,18 @@ model Friend {
   addresseeId String
   status      FriendStatus
   createdAt   DateTime     @default(now())
-
-  requester User @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  addressee User @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  addressee   User         @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  requester   User         @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
 
   @@unique([requesterId, addresseeId])
   @@index([requesterId])
   @@index([addresseeId])
 }
 
-enum FriendStatus {
-  PENDING
-  ACCEPTED
-  REQUESTER_BLOCKED_ADDRESSEE
-  ADDRESSEE_BLOCKED_REQUESTER
-  BLOCKED_BOTH_WAYS
-}
-
 model EmailVerification {
   userId    String   @id @unique
   token     String   @unique
-  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '24 hours'"))
+  expiresAt DateTime @default(dbgenerated("(now() + '24:00:00'::interval)"))
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -80,7 +69,7 @@ model PasswordReset {
   id        String   @id @default(cuid())
   userId    String
   token     String   @unique
-  expiresAt DateTime @default(dbgenerated("NOW() + INTERVAL '30 minutes'"))
+  expiresAt DateTime @default(dbgenerated("(now() + '00:30:00'::interval)"))
   createdAt DateTime @default(now())
   used      Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -97,7 +86,7 @@ model AuditLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([action])
@@ -114,10 +103,9 @@ model Message {
   updatedAt   DateTime @updatedAt
   edited      Boolean  @default(false)
   // TODO: attachments
-
-  author    User     @relation("SentMessages", fields: [authorId], references: [id], onDelete: Cascade)
-  recipient User?    @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
-  channel   Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  author      User     @relation("SentMessages", fields: [authorId], references: [id], onDelete: Cascade)
+  channel     Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  recipient   User?    @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
 
   @@index([authorId])
   @@index([recipientId])
@@ -129,4 +117,12 @@ model Channel {
   name      String
   isPrivate Boolean   @default(false)
   messages  Message[]
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  REQUESTER_BLOCKED_ADDRESSEE
+  ADDRESSEE_BLOCKED_REQUESTER
+  BLOCKED_BOTH_WAYS
 }

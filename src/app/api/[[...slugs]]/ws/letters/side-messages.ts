@@ -21,6 +21,7 @@ export async function sendSideMessagesLetter(
       createdAt: "desc",
     },
   });
+  messages.reverse();
 
   const seen = new Set<string>();
 

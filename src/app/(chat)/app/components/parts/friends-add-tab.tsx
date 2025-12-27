@@ -8,7 +8,7 @@ import { LoaderCircle } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 
 export function FriendsAddTab() {
-  const { sendMessageAndWaitForResponse } = useWebSocket();
+  const { sendMessageAndWaitForReply } = useWebSocket();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ color: "white", text: "" });
@@ -17,7 +17,7 @@ export function FriendsAddTab() {
     e.preventDefault();
     setLoading(true);
     setMessage({ color: "", text: "" });
-    await sendMessageAndWaitForResponse<typeof SendFriendRequestData>(
+    await sendMessageAndWaitForReply<typeof SendFriendRequestData>(
       "over:send-friend-request",
       {
         username,
