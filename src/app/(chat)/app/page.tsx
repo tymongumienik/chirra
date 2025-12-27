@@ -1,11 +1,11 @@
 "use client";
 
-import { useLuciaContext } from "@/app/libs/lucia-context";
 import { useEffect } from "react";
-import { useUserStore } from "./scripts/stores/who-am-i";
+import { LoadingScreen } from "@/app/libs/loading-screen";
+import { useLuciaContext } from "@/app/libs/lucia-context";
 import { WebSocketProvider } from "@/app/libs/ws";
 import Page from "./components/parts/page";
-import { LoadingScreen } from "@/app/libs/loading-screen";
+import { useUserStore } from "./scripts/stores/who-am-i";
 
 export default () => {
   const lucia = useLuciaContext();

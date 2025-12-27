@@ -1,13 +1,8 @@
-import { Static, TSchema } from "elysia";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import superjson from "superjson";
 import { Value } from "@sinclair/typebox/value";
+import type { Static, TSchema } from "elysia";
+import type React from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import superjson from "superjson";
 
 type WebSocketContextType = {
   ws: WebSocket | null;

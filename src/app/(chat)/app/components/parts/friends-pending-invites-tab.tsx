@@ -1,11 +1,11 @@
-import { useUserStore } from "../../scripts/stores/who-am-i";
-import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
-import { UserWidget } from "../user-widget";
-import {
+import type {
   AcceptFriendRequestData,
   DeleteFriendEntryData,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useWebSocket } from "@/app/libs/ws";
+import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
+import { useUserStore } from "../../scripts/stores/who-am-i";
+import { UserWidget } from "../user-widget";
 
 export function FriendsPendingInvitesTab() {
   const { sendMessage } = useWebSocket();

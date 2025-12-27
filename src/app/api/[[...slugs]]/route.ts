@@ -1,26 +1,26 @@
 import "server-only";
 import cors, { type HTTPMethod } from "@elysiajs/cors";
 import { Elysia } from "elysia";
+import type { Session, User } from "lucia";
 import superjson from "superjson";
+import { lucia } from "@/app/libs/auth";
+import { prismaClient } from "@/app/libs/db";
 import { env } from "@/app/libs/env";
 import { AppError, formatErrorResponse } from "@/app/libs/errors";
-import { lucia } from "@/app/libs/auth";
-import type { Session, User } from "lucia";
-import authRoutes from "./normal/auth";
+import { logger } from "@/app/libs/logger";
 import { authMiddleware } from "./middleware";
+import authRoutes from "./normal/auth";
 import passwordResetRoutes from "./normal/password-reset";
 import sessionRoutes from "./normal/sessions";
 import userRoutes from "./normal/user";
-import { ReceivedMessageCompiler } from "./ws/shared-schema";
-import { pingHandler } from "./ws/handlers/ping";
-import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
-import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
 import { acceptFriendRequestHandler } from "./ws/handlers/accept-friend-request";
-import { logger } from "@/app/libs/logger";
+import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
 import { heartbeatHandler } from "./ws/handlers/heartbeat";
-import { sendAnnounceStatusesLetter } from "./ws/letters/announce-statuses";
-import { prismaClient } from "@/app/libs/db";
+import { pingHandler } from "./ws/handlers/ping";
 import { requestMessageHistoryHandler } from "./ws/handlers/request-message-history";
+import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
+import { sendAnnounceStatusesLetter } from "./ws/letters/announce-statuses";
+import { ReceivedMessageCompiler } from "./ws/shared-schema";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,

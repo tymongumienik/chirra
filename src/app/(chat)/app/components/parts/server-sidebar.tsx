@@ -1,8 +1,8 @@
 import { Plus } from "lucide-react";
+import Image from "next/image";
+import { useActiveServerIdStore } from "../../scripts/stores/active-server";
 import { useViewStore } from "../../scripts/stores/view";
 import { ServerIcon } from "../server-icon";
-import { useActiveServerIdStore } from "../../scripts/stores/active-server";
-import Image from "next/image";
 
 export function ServerSidebar() {
   const setView = useViewStore((s) => s.setView);

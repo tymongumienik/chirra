@@ -1,17 +1,17 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: ... */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: ... */
 import { ChevronDown, Cog, Plus, Users } from "lucide-react";
-import { statusColors } from "../../constants/status";
-import { useViewStore } from "../../scripts/stores/view";
-import { Channel } from "../channel";
-import { useActiveChannelsIdStore } from "../../scripts/stores/active-channels";
-import { useActiveServerIdStore } from "../../scripts/stores/active-server";
 import Image from "next/image";
-import { useUserStore } from "../../scripts/stores/who-am-i";
-import { useSideMessageStore } from "../../scripts/stores/side-messages";
-import { UserWidget } from "../user-widget";
+import { statusColors } from "../../constants/status";
 import { initiateMessage } from "../../scripts/initiate-message";
+import { useActiveChannelsIdStore } from "../../scripts/stores/active-channels";
 import { useActiveDmStore } from "../../scripts/stores/active-dm";
+import { useActiveServerIdStore } from "../../scripts/stores/active-server";
+import { useSideMessageStore } from "../../scripts/stores/side-messages";
+import { useViewStore } from "../../scripts/stores/view";
+import { useUserStore } from "../../scripts/stores/who-am-i";
+import { Channel } from "../channel";
+import { UserWidget } from "../user-widget";
 
 export function ChannelSidebar() {
   const activeServerId = useActiveServerIdStore((s) => s.activeServerId);

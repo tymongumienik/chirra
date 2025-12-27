@@ -1,4 +1,7 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
+import type { Context } from "elysia";
+import { lucia } from "@/app/libs/auth";
 import { sendPasswordResetEmail } from "@/app/libs/email";
 import {
   ConflictError,
@@ -9,9 +12,6 @@ import { logger } from "@/app/libs/logger";
 import { validateEmail, validatePassword } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
 import type { passwordResetSchema } from "./schema";
-import { lucia } from "@/app/libs/auth";
-import { Context } from "elysia";
-import { randomBytes } from "node:crypto";
 
 export const requestPasswordReset = async ({
   body,

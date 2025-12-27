@@ -1,9 +1,9 @@
+import type { FriendStatus } from "@prisma/client";
 import type { WebSocketRoute } from "@/app/api";
+import { prismaClient } from "@/app/libs/db";
+import { sendFriendsListLetter } from "../letters/friends-list";
 import { sendPendingInvitesLetter } from "../letters/pending-invites";
 import { DeleteFriendEntryDataCompiler } from "../shared-schema";
-import { prismaClient } from "@/app/libs/db";
-import type { FriendStatus } from "@prisma/client";
-import { sendFriendsListLetter } from "../letters/friends-list";
 
 const deleteFriendEntryHandler: WebSocketRoute = {
   message: "void:delete-friend-entry",

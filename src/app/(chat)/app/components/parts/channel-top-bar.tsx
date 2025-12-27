@@ -1,8 +1,8 @@
 import { Hash, Pin } from "lucide-react";
-import { useViewStore } from "../../scripts/stores/view";
-import { useUserDataStore } from "../../scripts/stores/user-data";
-import { useActiveDmStore } from "../../scripts/stores/active-dm";
 import Image from "next/image";
+import { useActiveDmStore } from "../../scripts/stores/active-dm";
+import { useUserDataStore } from "../../scripts/stores/user-data";
+import { useViewStore } from "../../scripts/stores/view";
 
 export function ChannelTopBar() {
   const view = useViewStore((s) => s.view);

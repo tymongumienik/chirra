@@ -1,10 +1,10 @@
 import type { WebSocketRoute } from "@/app/api";
+import { prismaClient } from "@/app/libs/db";
+import { sendPendingInvitesLetter } from "../letters/pending-invites";
 import {
   SendFriendRequestDataCompiler,
   type SendFriendRequestResponse,
 } from "../shared-schema";
-import { prismaClient } from "@/app/libs/db";
-import { sendPendingInvitesLetter } from "../letters/pending-invites";
 
 const sendFriendRequestHandler: WebSocketRoute = {
   message: "over:send-friend-request",

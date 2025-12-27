@@ -1,6 +1,6 @@
-import { UserWidget } from "../user-widget";
-import { useFriendsStore } from "../../scripts/stores/friends";
 import { initiateMessage } from "../../scripts/initiate-message";
+import { useFriendsStore } from "../../scripts/stores/friends";
+import { UserWidget } from "../user-widget";
 
 export function FriendsAllTab() {
   const friends = useFriendsStore((s) => s.friends);

@@ -7,10 +7,10 @@ import {
   MoreVertical,
   X,
 } from "lucide-react";
-import { useUserDataStore } from "../scripts/stores/user-data";
-import { statusColors } from "../constants/status";
 import Image from "next/image";
+import { statusColors } from "../constants/status";
 import { useFriendsStore } from "../scripts/stores/friends";
+import { useUserDataStore } from "../scripts/stores/user-data";
 
 export function UserWidget({
   id,

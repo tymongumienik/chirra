@@ -1,10 +1,10 @@
 import "server-only";
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
+import PasswordResetEmail from "./emails/password-reset";
 import VerificationEmail from "./emails/verification";
 import { env } from "./env";
 import { logger } from "./logger";
-import PasswordResetEmail from "./emails/password-reset";
 
 // TODO: create frontend password reset page
 

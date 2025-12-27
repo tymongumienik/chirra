@@ -1,17 +1,17 @@
 import { Plus, Smile } from "lucide-react";
-import { MessageView } from "../message-view";
-import { ChannelTopBar } from "./channel-top-bar";
-import { useViewStore } from "../../scripts/stores/view";
-import { useWebSocket } from "@/app/libs/ws";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import {
-  RequestMessageHistoryData,
+  type RequestMessageHistoryData,
   RequestMessageHistoryResponseCompiler,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
-import { useMessagesStore } from "../../scripts/stores/messages";
+import { useWebSocket } from "@/app/libs/ws";
 import { useActiveChannelsIdStore } from "../../scripts/stores/active-channels";
-import { useActiveServerIdStore } from "../../scripts/stores/active-server";
 import { useActiveDmStore } from "../../scripts/stores/active-dm";
-import { useLayoutEffect, useRef, useState, useCallback } from "react";
+import { useActiveServerIdStore } from "../../scripts/stores/active-server";
+import { useMessagesStore } from "../../scripts/stores/messages";
+import { useViewStore } from "../../scripts/stores/view";
+import { MessageView } from "../message-view";
+import { ChannelTopBar } from "./channel-top-bar";
 
 export function ChannelView() {
   const { sendMessageAndWaitForReply } = useWebSocket();

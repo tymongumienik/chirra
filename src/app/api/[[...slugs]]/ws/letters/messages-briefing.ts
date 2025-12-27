@@ -1,6 +1,6 @@
 import { prismaClient } from "@/app/libs/db";
-import type { Message } from "../shared-schema";
 import { sendWebSocketMessageToUser } from "../../route";
+import type { Message } from "../shared-schema";
 
 export async function sendDMBriefingLetter(
   userId: string,

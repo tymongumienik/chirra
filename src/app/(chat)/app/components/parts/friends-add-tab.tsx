@@ -1,11 +1,11 @@
+import { LoaderCircle } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 import {
-  SendFriendRequestData,
+  type SendFriendRequestData,
   SendFriendRequestDataCompiler,
   SendFriendRequestResponseCompiler,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useWebSocket } from "@/app/libs/ws";
-import { LoaderCircle } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
 
 export function FriendsAddTab() {
   const { sendMessageAndWaitForReply } = useWebSocket();

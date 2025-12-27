@@ -1,4 +1,5 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import type { Context } from "elysia";
 import type { Session } from "lucia";
 import { lucia } from "@/app/libs/auth";
@@ -18,7 +19,6 @@ import {
 } from "@/app/libs/validation";
 import type { WithPrisma } from "@/types/database";
 import type { authSchema } from "./schema";
-import { randomBytes } from "node:crypto";
 
 export const register = async ({
   body,

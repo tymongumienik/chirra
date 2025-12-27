@@ -1,9 +1,9 @@
 import { updateLastSeen, type WebSocketRoute } from "@/app/api";
-import { sendPendingInvitesLetter } from "../letters/pending-invites";
-import { sendFriendsListLetter } from "../letters/friends-list";
 import { sendAnnounceStatusesLetter } from "../letters/announce-statuses";
-import { sendSideMessagesLetter } from "../letters/side-messages";
+import { sendFriendsListLetter } from "../letters/friends-list";
 import { sendDMBriefingLetter } from "../letters/messages-briefing";
+import { sendPendingInvitesLetter } from "../letters/pending-invites";
+import { sendSideMessagesLetter } from "../letters/side-messages";
 
 const pingHandler: WebSocketRoute = {
   message: "over:ping",

@@ -1,6 +1,6 @@
 import Image from "next/image";
+import type { Message } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useUserDataStore } from "../scripts/stores/user-data";
-import { Message } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useUserStore } from "../scripts/stores/who-am-i";
 
 export function MessageView({

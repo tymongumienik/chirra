@@ -1,12 +1,4 @@
-import { ChannelSidebar } from "./channel-sidebar";
-import { FriendsAddTab } from "./friends-add-tab";
-import { FriendsTopBar } from "./friends-top-bar";
-import { ServerSidebar } from "./server-sidebar";
-import { useFriendTabStore } from "../../scripts/stores/friends-tab";
-import { useViewStore } from "../../scripts/stores/view";
 import { useEffect } from "react";
-import { useWebSocket } from "@/app/libs/ws";
-import { LoadingScreen } from "@/app/libs/loading-screen";
 import {
   AnnounceStatusesLetterCompiler,
   DMBriefingLetterCompiler,
@@ -15,15 +7,23 @@ import {
   SideMessagesLetterCompiler,
   UserDetailsLetterCompiler,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
-import { useUserDataStore } from "../../scripts/stores/user-data";
-import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
-import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
+import { LoadingScreen } from "@/app/libs/loading-screen";
+import { useWebSocket } from "@/app/libs/ws";
 import { useFriendsStore } from "../../scripts/stores/friends";
+import { useFriendTabStore } from "../../scripts/stores/friends-tab";
+import { useMessagesStore } from "../../scripts/stores/messages";
+import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
+import { useSideMessageStore } from "../../scripts/stores/side-messages";
+import { useUserDataStore } from "../../scripts/stores/user-data";
+import { useViewStore } from "../../scripts/stores/view";
+import { ChannelSidebar } from "./channel-sidebar";
+import { ChannelView } from "./channel-view";
+import { FriendsAddTab } from "./friends-add-tab";
 import { FriendsAllTab } from "./friends-all-tab";
 import { FriendsOnlineTab } from "./friends-online-tab";
-import { useSideMessageStore } from "../../scripts/stores/side-messages";
-import { ChannelView } from "./channel-view";
-import { useMessagesStore } from "../../scripts/stores/messages";
+import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
+import { FriendsTopBar } from "./friends-top-bar";
+import { ServerSidebar } from "./server-sidebar";
 
 export default function Page() {
   const { subscribe, sendMessage, ready } = useWebSocket();
