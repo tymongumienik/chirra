@@ -90,6 +90,7 @@ export default function Page() {
     overwriteFriends,
     setStatus,
     setSideMessageUsers,
+    setMessagesForLocation,
   ]);
 
   if (!ready) return <LoadingScreen />;
