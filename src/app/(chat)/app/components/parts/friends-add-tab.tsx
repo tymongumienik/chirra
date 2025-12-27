@@ -8,24 +8,23 @@ import { LoaderCircle } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 
 export function FriendsAddTab() {
-  const { sendMessage, subscribe } = useWebSocket();
+  const { sendMessageAndWaitForResponse } = useWebSocket();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ color: "white", text: "" });
 
-  const sendRequest = (e: FormEvent<HTMLFormElement>) => {
+  const sendRequest = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    sendMessage<typeof SendFriendRequestData>("over:send-friend-request", {
-      username,
-    });
     setMessage({ color: "", text: "" });
-  };
-
-  useEffect(() => {
-    const unsub = subscribe((message, data) => {
-      if (message === "response:send-friend-request") {
-        if (!SendFriendRequestResponseCompiler.Check(data)) return;
+    await sendMessageAndWaitForResponse<typeof SendFriendRequestData>(
+      "over:send-friend-request",
+      {
+        username,
+      },
+      (message, data) => {
+        if (message !== "response:send-friend-request") return false;
+        if (!SendFriendRequestResponseCompiler.Check(data)) return false;
 
         if (data.success) {
           setLoading(false);
@@ -37,10 +36,11 @@ export function FriendsAddTab() {
           setLoading(false);
           setMessage({ color: "red", text: `${data.error}` });
         }
-      }
-    });
-    return unsub;
-  }, [subscribe]);
+
+        return true;
+      },
+    );
+  };
 
   return (
     <div className="p-8">

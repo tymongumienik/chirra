@@ -15,6 +15,17 @@ const Invite = t.Object({
   addressee: t.Object({ id: t.String() }),
 });
 
+export const Message = t.Object({
+  id: t.String(),
+  createdAt: t.Date(),
+  content: t.String(),
+  authorId: t.String(),
+  recipientId: t.Union([t.String(), t.Null()]),
+  channelId: t.Union([t.String(), t.Null()]),
+  updatedAt: t.Date(),
+  edited: t.Boolean(),
+});
+
 // HANDLERS
 
 export const SendFriendRequestData = t.Object({
@@ -48,6 +59,32 @@ export const AcceptFriendRequestData = t.Object({
 
 export const AcceptFriendRequestDataCompiler = TypeCompiler.Compile(
   AcceptFriendRequestData,
+);
+
+export const RequestMessageHistoryData = t.Object({
+  requestId: t.String(),
+  location: t.Union([
+    t.Object({
+      channel: t.String(),
+    }),
+    t.Object({
+      user: t.String(),
+    }),
+  ]),
+  page: t.Number(),
+});
+
+export const RequestMessageHistoryDataCompiler = TypeCompiler.Compile(
+  RequestMessageHistoryData,
+);
+
+export const RequestMessageHistoryResponse = t.Object({
+  requestId: t.String(),
+  messages: t.Array(Message),
+});
+
+export const RequestMessageHistoryResponseCompiler = TypeCompiler.Compile(
+  RequestMessageHistoryResponse,
 );
 
 // LETTERS
@@ -103,3 +140,9 @@ export const SideMessagesLetter = t.Object({
 
 export const SideMessagesLetterCompiler =
   TypeCompiler.Compile(SideMessagesLetter);
+
+export const DMBriefingLetter = t.Object({
+  messages: t.Record(t.String(), t.Array(Message)),
+});
+
+export const DMBriefingLetterCompiler = TypeCompiler.Compile(DMBriefingLetter);

@@ -1,7 +1,9 @@
 import { prismaClient } from "@/app/libs/db";
 import { sendWebSocketMessageToUser } from "../../route";
 
-export async function sideMessagesLetter(userId: string) {
+export async function sendSideMessagesLetter(
+  userId: string,
+): Promise<string[]> {
   const messages = await prismaClient.message.findMany({
     where: {
       channelId: null,
@@ -34,4 +36,6 @@ export async function sideMessagesLetter(userId: string) {
   sendWebSocketMessageToUser([userId], "letter:side-messages", {
     users: uniqueByUser,
   });
+
+  return uniqueByUser;
 }

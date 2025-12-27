@@ -1,6 +1,6 @@
 import { isActive, sendWebSocketMessageToUser } from "../../route";
 
-export async function announceStatusesLetter(
+export async function sendAnnounceStatusesLetter(
   targets: string[],
   userIds: string[],
   recurse: boolean = false,
@@ -15,6 +15,6 @@ export async function announceStatusesLetter(
   });
 
   if (!recurse) {
-    announceStatusesLetter(userIds, targets, true);
+    sendAnnounceStatusesLetter(userIds, targets, true);
   }
 }

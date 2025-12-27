@@ -9,6 +9,7 @@ import { useWebSocket } from "@/app/libs/ws";
 import { LoadingScreen } from "@/app/libs/loading-screen";
 import {
   AnnounceStatusesLetterCompiler,
+  DMBriefingLetterCompiler,
   FriendsListLetterCompiler,
   PendingInvitesLetterCompiler,
   SideMessagesLetterCompiler,
@@ -22,6 +23,7 @@ import { FriendsAllTab } from "./friends-all-tab";
 import { FriendsOnlineTab } from "./friends-online-tab";
 import { useSideMessageStore } from "../../scripts/stores/side-messages";
 import { ChannelView } from "./channel-view";
+import { useMessagesStore } from "../../scripts/stores/messages";
 
 export default function Page() {
   const { subscribe, sendMessage, ready } = useWebSocket();
@@ -34,6 +36,9 @@ export default function Page() {
   const overwriteFriends = useFriendsStore((s) => s.overwriteFriends);
   const setStatus = useFriendsStore((s) => s.setStatus);
   const setSideMessageUsers = useSideMessageStore((s) => s.setUsers);
+  const setMessagesForLocation = useMessagesStore(
+    (s) => s.setMessagesForLocation,
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,6 +69,12 @@ export default function Page() {
       if (message === "letter:side-messages") {
         if (!SideMessagesLetterCompiler.Check(data)) return;
         setSideMessageUsers(data.users);
+      }
+      if (message === "letter:dm-briefing") {
+        if (!DMBriefingLetterCompiler.Check(data)) return;
+        for (const [user, msgs] of Object.entries(data.messages)) {
+          setMessagesForLocation({ user }, msgs);
+        }
       }
     });
 

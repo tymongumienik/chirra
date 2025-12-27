@@ -7,6 +7,7 @@ type SideMessageStore = {
   users: string[];
   setUsers: (users: SideMessageUser[]) => void;
   prioritizeUser: (user: SideMessageUser) => void;
+  prioritizeIfNotPresent: (user: SideMessageUser) => void;
 };
 
 export const useSideMessageStore = create<SideMessageStore>()(
@@ -17,6 +18,12 @@ export const useSideMessageStore = create<SideMessageStore>()(
       prioritizeUser: (user: SideMessageUser) =>
         set((state) => ({
           users: [user, ...state.users.filter((u) => u !== user)],
+        })),
+      prioritizeIfNotPresent: (user: SideMessageUser) =>
+        set((state) => ({
+          users: state.users.includes(user)
+            ? state.users
+            : [user, ...state.users],
         })),
     }),
     {

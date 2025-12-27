@@ -18,8 +18,9 @@ import { deleteFriendEntryHandler } from "./ws/handlers/delete-friend-entry";
 import { acceptFriendRequestHandler } from "./ws/handlers/accept-friend-request";
 import { logger } from "@/app/libs/logger";
 import { heartbeatHandler } from "./ws/handlers/heartbeat";
-import { announceStatusesLetter } from "./ws/letters/announce-statuses";
+import { sendAnnounceStatusesLetter } from "./ws/letters/announce-statuses";
 import { prismaClient } from "@/app/libs/db";
+import { requestMessageHistoryHandler } from "./ws/handlers/request-message-history";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,
@@ -54,6 +55,7 @@ const webSocketRouteHandlers = [
   deleteFriendEntryHandler,
   acceptFriendRequestHandler,
   heartbeatHandler,
+  requestMessageHistoryHandler,
 ];
 
 // WebSocket communication is bidirectional, and this codebase
@@ -110,7 +112,7 @@ async function announceStatusToFriends(userId: string) {
     },
   });
 
-  announceStatusesLetter(
+  sendAnnounceStatusesLetter(
     friends.map((x) =>
       x.requesterId === userId ? x.addresseeId : x.requesterId,
     ),

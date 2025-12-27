@@ -13,6 +13,11 @@ type WebSocketContextType = {
   ws: WebSocket | null;
   ready: boolean; // only true after ping/pong
   sendMessage: <S extends TSchema>(message: string, data: Static<S>) => void;
+  sendMessageAndWaitForResponse: <S extends TSchema>(
+    message: string,
+    data: Static<S>,
+    waitFor: (message: string, data?: Record<string, unknown>) => boolean,
+  ) => Promise<void>;
   subscribe: (
     cb: (message: string, data?: Record<string, unknown>) => void,
   ) => () => void;
@@ -153,6 +158,23 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  const sendMessageAndWaitForResponse = async <S extends TSchema>(
+    message: string,
+    data: Static<S>,
+    waitFor: (message: string, data?: Record<string, unknown>) => boolean,
+  ) => {
+    return new Promise<void>((resolve) => {
+      const unsubscribe = subscribe((msg, d) => {
+        if (waitFor(msg, d)) {
+          unsubscribe();
+          resolve();
+        }
+      });
+
+      sendMessage(message, data);
+    });
+  };
+
   const subscribe = (
     cb: (message: string, data?: Record<string, unknown>) => void,
   ) => {
@@ -167,6 +189,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         ready,
         sendMessage,
         subscribe,
+        sendMessageAndWaitForResponse,
       }}
     >
       {children}
