@@ -1,8 +1,4 @@
-import { Plus, Smile } from "lucide-react";
-import { Member } from "../member";
-import { Message } from "../message";
 import { ChannelSidebar } from "./channel-sidebar";
-import { ChannelTopBar } from "./channel-top-bar";
 import { FriendsAddTab } from "./friends-add-tab";
 import { FriendsTopBar } from "./friends-top-bar";
 import { ServerSidebar } from "./server-sidebar";
@@ -15,15 +11,17 @@ import {
   AnnounceStatusesLetterCompiler,
   FriendsListLetterCompiler,
   PendingInvitesLetterCompiler,
+  SideMessagesLetterCompiler,
   UserDetailsLetterCompiler,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useUserDataStore } from "../../scripts/stores/user-data";
 import { usePendingInvitePairStore } from "../../scripts/stores/pending-invite-pairs";
-import SuperJSON from "superjson";
 import { FriendsPendingInvitesTab } from "./friends-pending-invites-tab";
 import { useFriendsStore } from "../../scripts/stores/friends";
 import { FriendsAllTab } from "./friends-all-tab";
 import { FriendsOnlineTab } from "./friends-online-tab";
+import { useSideMessageStore } from "../../scripts/stores/side-messages";
+import { ChannelView } from "./channel-view";
 
 export default function Page() {
   const { subscribe, sendMessage, ready } = useWebSocket();
@@ -35,6 +33,7 @@ export default function Page() {
   );
   const overwriteFriends = useFriendsStore((s) => s.overwriteFriends);
   const setStatus = useFriendsStore((s) => s.setStatus);
+  const setSideMessageUsers = useSideMessageStore((s) => s.setUsers);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,6 +61,10 @@ export default function Page() {
           setStatus(id, status ? "online" : "offline");
         }
       }
+      if (message === "letter:side-messages") {
+        if (!SideMessagesLetterCompiler.Check(data)) return;
+        setSideMessageUsers(data.users);
+      }
     });
 
     return () => {
@@ -75,6 +78,7 @@ export default function Page() {
     overwritePendingInvitePairs,
     overwriteFriends,
     setStatus,
+    setSideMessageUsers,
   ]);
 
   if (!ready) return <LoadingScreen />;
@@ -97,56 +101,7 @@ export default function Page() {
           </div>
         </div>
       ) : (
-        <>
-          <div className="flex-1 flex flex-col">
-            <ChannelTopBar />
-
-            <div className="flex-1 overflow-y-auto">
-              <div>
-                {[].map((msg, idx) => (
-                  <Message key={msg.id} {...msg} />
-                ))}
-              </div>
-            </div>
-
-            <div className="px-4 pb-6">
-              <div className="flex items-center gap-4 bg-slate-800 rounded-lg px-4 py-3">
-                <button type="button" className="hover:opacity-80">
-                  <Plus className="w-6 h-6 text-gray-400" />
-                </button>
-                <input
-                  type="text"
-                  className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 outline-none"
-                />
-                <button type="button" className="hover:opacity-80">
-                  <Smile className="w-6 h-6 text-gray-400" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-60 bg-card overflow-y-auto">
-            <div className="pt-4">
-              <div className="px-2 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                Online — {[].filter((m) => m.status === "online").length}
-              </div>
-              {[]
-                .filter((m) => m.status === "online")
-                .map((member, idx) => (
-                  <Member key={idx} {...member} />
-                ))}
-
-              <div className="px-2 mb-2 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                Offline — {[].filter((m) => m.status === "offline").length}
-              </div>
-              {[]
-                .filter((m) => m.status === "offline")
-                .map((member, idx) => (
-                  <Member key={idx} {...member} />
-                ))}
-            </div>
-          </div>
-        </>
+        <ChannelView />
       )}
     </div>
   );

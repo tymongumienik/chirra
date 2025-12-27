@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type View = "friends" | "channel";
+type View = "friends" | "channel" | "dm";
 
 type ViewState = {
   view: View;

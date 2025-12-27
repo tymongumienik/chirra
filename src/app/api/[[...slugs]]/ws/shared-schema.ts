@@ -96,3 +96,10 @@ export const AnnounceStatusesLetter = t.Object({
 export const AnnounceStatusesLetterCompiler = TypeCompiler.Compile(
   AnnounceStatusesLetter,
 );
+
+export const SideMessagesLetter = t.Object({
+  users: t.Array(t.String()),
+});
+
+export const SideMessagesLetterCompiler =
+  TypeCompiler.Compile(SideMessagesLetter);

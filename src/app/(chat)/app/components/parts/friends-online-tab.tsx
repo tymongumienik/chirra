@@ -1,11 +1,8 @@
-import { useUserStore } from "../../scripts/stores/who-am-i";
 import { UserWidget } from "../user-widget";
-import { useWebSocket } from "@/app/libs/ws";
 import { useFriendsStore } from "../../scripts/stores/friends";
+import { initiateMessage } from "../../scripts/initiate-message";
 
 export function FriendsOnlineTab() {
-  const { sendMessage } = useWebSocket();
-  const user = useUserStore((s) => s.user);
   const friends = useFriendsStore((s) => s.friends);
 
   return (
@@ -13,7 +10,15 @@ export function FriendsOnlineTab() {
       {friends
         .filter((x) => x.status === "online")
         .map((friend, idx) => (
-          <UserWidget key={friend.id} id={friend.id} topBorder={idx !== 0} />
+          <UserWidget
+            key={friend.id}
+            id={friend.id}
+            topBorder={idx !== 0}
+            buttons={{
+              MESSAGE: () => initiateMessage(friend.id),
+            }}
+            onClick={() => initiateMessage(friend.id)}
+          />
         ))}
     </div>
   );

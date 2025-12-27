@@ -17,7 +17,7 @@ export function ServerSidebar() {
         type="button"
         onClick={() => setView("friends")}
         className={`flex items-center justify-center w-12 h-12 rounded-[24px] transition-all duration-200 hover:rounded-[16px] mb-2 group ${
-          view === "friends"
+          view === "friends" || view === "dm"
             ? "bg-accent/90 rounded-[16px]"
             : "bg-gray-900 hover:bg-accent"
         }`}
