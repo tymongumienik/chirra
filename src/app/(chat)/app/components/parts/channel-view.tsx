@@ -1,5 +1,6 @@
 import { Plus, Smile } from "lucide-react";
 import {
+  type ChangeEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -7,8 +8,11 @@ import {
   useState,
 } from "react";
 import {
+  type ChannelSetSubscriptionStateData,
   type RequestMessageHistoryData,
   RequestMessageHistoryResponseCompiler,
+  TypingStateLetterCompiler,
+  TypingUpdateStateData,
 } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useWebSocket } from "@/app/libs/ws";
 import { useActiveChannelsIdStore } from "../../scripts/stores/active-channels";
@@ -20,10 +24,12 @@ import { MessageView } from "../message-view";
 import { ChannelTopBar } from "./channel-top-bar";
 import { Modal } from "../modal";
 import { UserModal } from "../user-modal";
+import { useUserStore } from "../../scripts/stores/who-am-i";
 import { useUserDataStore } from "../../scripts/stores/user-data";
 
 export function ChannelView() {
-  const { sendMessageAndWaitForReply } = useWebSocket();
+  const { subscribe, sendMessage, sendMessageAndWaitForReply } = useWebSocket();
+  const user = useUserStore((s) => s.user);
   const view = useViewStore((s) => s.view);
   const currentDmUser = useActiveDmStore((s) => s.activeUserId);
   const activeServer = useActiveServerIdStore((s) => s.activeServerId);
@@ -42,7 +48,34 @@ export function ChannelView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
   const pageRef = useRef(0);
-  const typing = [];
+  const [typing, setTyping] = useState<string[]>([]);
+
+  const [lastTypedAt, setLastTypedAt] = useState<number | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLastTypedAtChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length >= 2) {
+      const now = Date.now();
+      setLastTypedAt(now);
+
+      if (!isTyping) setIsTyping(true);
+
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+      timeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+        timeoutRef.current = null;
+      }, 5000); // 5 seconds
+    } else {
+      setIsTyping(false);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    }
+  };
 
   const fetchMessages = useCallback(
     async (pageToFetch: number) => {
@@ -90,9 +123,42 @@ export function ChannelView() {
   }, [fetchMessages]);
 
   useEffect(() => {
-    console.log("welcome");
-    return () => console.log("goodbye");
-  }, []);
+    sendMessage<typeof ChannelSetSubscriptionStateData>(
+      "void:set-channel-subscription-state",
+      { subscribed: true, location },
+    );
+
+    return () => {
+      sendMessage<typeof ChannelSetSubscriptionStateData>(
+        "void:set-channel-subscription-state",
+        { subscribed: false, location },
+      );
+    };
+  }, [sendMessage, location]);
+
+  useEffect(() => {
+    sendMessage<typeof TypingUpdateStateData>("void:typing-update-state", {
+      typing: isTyping,
+    });
+  }, [sendMessage, isTyping]);
+
+  useEffect(() => {
+    const unsub = subscribe((message, data) => {
+      if (message !== "letter:typing-state") return;
+      if (!TypingStateLetterCompiler.Check(data)) return;
+      if (data.typerId === user?.id) return;
+
+      if (data.typingState === true) {
+        setTyping((prev) => [
+          ...prev.filter((id) => id !== data.typerId),
+          data.typerId,
+        ]);
+      } else {
+        setTyping((prev) => prev.filter((id) => id !== data.typerId));
+      }
+    });
+    return unsub;
+  }, [subscribe, user]);
 
   const [openUserModalId, setOpenUserModalId] = useState<string | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -169,6 +235,7 @@ export function ChannelView() {
             const input = e.currentTarget.elements.namedItem(
               "message",
             ) as HTMLInputElement;
+            setLastTypedAt(null);
             console.log("Send:", input.value);
             input.value = "";
           }}
@@ -182,6 +249,7 @@ export function ChannelView() {
             name="message"
             className="flex-1 bg-transparent text-gray-200 placeholder-gray-400 outline-none"
             placeholder="Send a message"
+            onChange={handleLastTypedAtChange}
           />
           <button type="button" className="hover:opacity-80">
             <Smile className="w-6 h-6 text-gray-400" />

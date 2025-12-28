@@ -52,14 +52,16 @@ export function UserModal({ userId }: { userId: string | null }) {
               className="flex items-center gap-1 px-3 py-1 bg-card/50 rounded-full"
             >
               <item.icon className="w-3 h-3 text-accent" />
-              <span className="text-gray-200">{item.value}</span>
+              <span className="text-gray-200 wrap-break-word">
+                {item.value}
+              </span>
             </div>
           ))}
       </div>
 
       {userData.profile.bio && (
         <div className="mt-5">
-          <span className="whitespace-pre-line text-sm text-gray-400">
+          <span className="whitespace-pre-line text-sm text-gray-400 wrap-break-word">
             {userData.profile.bio}
           </span>
         </div>

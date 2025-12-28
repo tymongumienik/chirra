@@ -21,6 +21,11 @@ import { requestMessageHistoryHandler } from "./ws/handlers/request-message-hist
 import { sendFriendRequestHandler } from "./ws/handlers/send-friend-request";
 import { sendAnnounceStatusesLetter } from "./ws/letters/announce-statuses";
 import { ReceivedMessageCompiler } from "./ws/shared-schema";
+import { connectedClients } from "./ws/storage/connected-clients";
+import { lastSeen } from "./ws/storage/last-seen";
+import { channelSetSubscriptionStateHandler } from "./ws/handlers/channel-subscribe";
+import { unsubscribeUserFromAllChannels } from "./ws/storage/channel-subscription-pairs";
+import { typingUpdateStateHandler } from "./ws/handlers/typing-update-state";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,
@@ -66,6 +71,8 @@ const webSocketRouteHandlers = [
   acceptFriendRequestHandler,
   heartbeatHandler,
   requestMessageHistoryHandler,
+  channelSetSubscriptionStateHandler,
+  typingUpdateStateHandler,
 ];
 
 // WebSocket communication is bidirectional, and this codebase
@@ -91,9 +98,6 @@ export type WebSocketRoute = {
     ) => void;
   }) => Promise<void>;
 };
-
-const connectedClients = new Map<string, Set<import("ws").WebSocket>>();
-const lastSeen = new Map<string, number>();
 
 export function isActive(userid: string) {
   return connectedClients.has(userid);
@@ -142,12 +146,20 @@ export const UPGRADE = (
   request: import("next/server").NextRequest,
   context: import("next-ws/server").RouteContext<"/api/ws">,
 ) => {
+  const disconnect = ({ force }: { force?: boolean }) => {
+    if (force) {
+      client.terminate();
+    } else {
+      client.close();
+    }
+  };
+
   const origin = request.headers.get("Origin");
   if (
     !origin ||
     (env.IS_PRODUCTION && !(env.ALLOWED_ORIGINS ?? []).includes(origin))
   ) {
-    client.close();
+    disconnect({ force: true });
     return;
   }
 
@@ -156,7 +168,7 @@ export const UPGRADE = (
   let authenticatedUserId: string | null = null;
 
   const firstMessageTimeout = setTimeout(() => {
-    client.terminate();
+    disconnect({ force: true });
     logger.info(
       "Client terminated for not sending any message in first 10 seconds",
     );
@@ -169,12 +181,12 @@ export const UPGRADE = (
       const rawMessage = message.toString();
       messageParsed = superjson.parse(rawMessage);
     } catch {
-      client.terminate();
+      disconnect({ force: true });
       return;
     }
 
     if (!ReceivedMessageCompiler.Check(messageParsed)) {
-      client.terminate();
+      disconnect({ force: true });
       return;
     }
 
@@ -205,7 +217,7 @@ export const UPGRADE = (
 
       if (!success) {
         // bye bye have a great time
-        client.terminate();
+        disconnect({ force: true });
         return;
       }
 
@@ -238,6 +250,9 @@ export const UPGRADE = (
   });
 
   client.once("close", async () => {
+    if (authenticatedUserId) {
+      unsubscribeUserFromAllChannels(authenticatedUserId);
+    }
     logger.info("A client disconnected from WebSocket");
   });
 
@@ -251,7 +266,7 @@ export const UPGRADE = (
       if (lastSeenTime && (Date.now() - lastSeenTime) / 1000 > 15) {
         removeUserOnline(authenticatedUserId);
         clearInterval(interval);
-        client.close();
+        disconnect({ force: true });
         logger.info(
           `Client removed from WebSocket registry for user ${authenticatedUserId}`,
         );

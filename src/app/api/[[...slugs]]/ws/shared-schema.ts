@@ -87,6 +87,30 @@ export const RequestMessageHistoryResponseCompiler = TypeCompiler.Compile(
   RequestMessageHistoryResponse,
 );
 
+export const ChannelSetSubscriptionStateData = t.Object({
+  location: t.Union([
+    t.Object({
+      channel: t.String(),
+    }),
+    t.Object({
+      user: t.String(),
+    }),
+  ]),
+  subscribed: t.Boolean(),
+});
+
+export const ChannelSetSubscriptionStateDataCompiler = TypeCompiler.Compile(
+  ChannelSetSubscriptionStateData,
+);
+
+export const TypingUpdateStateData = t.Object({
+  typing: t.Boolean(),
+});
+
+export const TypingUpdateStateDataCompiler = TypeCompiler.Compile(
+  TypingUpdateStateData,
+);
+
 // LETTERS
 
 export const PendingInvitesLetter = t.Object({
@@ -146,3 +170,11 @@ export const DMBriefingLetter = t.Object({
 });
 
 export const DMBriefingLetterCompiler = TypeCompiler.Compile(DMBriefingLetter);
+
+export const TypingStateLetter = t.Object({
+  typingState: t.Boolean(),
+  typerId: t.String(),
+});
+
+export const TypingStateLetterCompiler =
+  TypeCompiler.Compile(TypingStateLetter);
