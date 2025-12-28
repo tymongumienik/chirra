@@ -1,5 +1,5 @@
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: ... */
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: ... */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: using div as interactive element for sidebar navigation */
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: using div as interactive element for sidebar navigation */
 import { ChevronDown, Cog, Plus, Users } from "lucide-react";
 import Image from "next/image";
 import { statusColors } from "../../constants/status";

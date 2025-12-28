@@ -1,6 +1,6 @@
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: ... */
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: ... */
-import { Button } from "@/components/ui/button";
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: overlay and backdrop interactions for closing modal */
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: overlay and backdrop interactions for closing modal */
+
 import { type ReactNode, useEffect, useState } from "react";
 
 export function Modal({

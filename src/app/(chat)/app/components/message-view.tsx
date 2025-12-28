@@ -1,6 +1,6 @@
-/** biome-ignore-all lint/a11y/useSemanticElements: ...*/
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: ... */
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: ... */
+/** biome-ignore-all lint/a11y/useSemanticElements: using span as interactive element for username click */
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: using span as interactive element for username click */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: using span as interactive element for username click */
 import Image from "next/image";
 import type { Message } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useUserDataStore } from "../scripts/stores/user-data";

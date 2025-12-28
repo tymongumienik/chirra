@@ -1,4 +1,3 @@
-import { Value } from "@sinclair/typebox/value";
 import type { Static, TSchema } from "elysia";
 import type React from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
@@ -40,7 +39,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const connectingRef = useRef(false);
   const destroyedRef = useRef(false);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ...
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we only want to connect once on mount
   useEffect(() => {
     destroyedRef.current = false;
     setReady(false);
