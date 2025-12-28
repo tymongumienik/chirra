@@ -79,7 +79,7 @@ export function UserWidget({
               <button
                 key={key}
                 type="button"
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 cursor-pointer"
                 onClick={buttons[key]}
                 title={title}
               >
