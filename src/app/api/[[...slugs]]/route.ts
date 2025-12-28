@@ -33,6 +33,16 @@ const corsConfig = {
 
 const app = new Elysia({ prefix: "/api" })
   .error({ AppError })
+  .onAfterHandle(({ responseValue, path }) => {
+    // https://github.com/elysiajs/elysia/issues/262
+    if (
+      // biome-ignore lint/suspicious/noExplicitAny: type gimmick
+      [Array, Object].includes(responseValue?.constructor as any) &&
+      !path.match(/^\/api\/swagger(\/|$)/)
+    ) {
+      return new Response(superjson.stringify(responseValue));
+    }
+  })
   .onError(({ error }) => {
     return formatErrorResponse(error);
   })

@@ -1,19 +1,20 @@
+/** biome-ignore-all lint/a11y/useSemanticElements: ...*/
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: ... */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: ... */
 import Image from "next/image";
 import type { Message } from "@/app/api/[[...slugs]]/ws/shared-schema";
 import { useUserDataStore } from "../scripts/stores/user-data";
-import { useUserStore } from "../scripts/stores/who-am-i";
 
 export function MessageView({
   authorId,
   message,
+  onUserClick = () => {},
 }: {
   authorId: string;
   message: (typeof Message)["static"];
+  onUserClick?: () => void;
 }) {
-  const user = useUserStore((s) => s.user);
-  const authorOther = useUserDataStore((s) => s.getUser(authorId));
-
-  const author = user?.id === authorId ? user : authorOther;
+  const author = useUserDataStore((s) => s.getUser(authorId));
 
   return (
     <div className="flex gap-2 px-4 py-2 hover:bg-gray-900/30 group">
@@ -28,8 +29,11 @@ export function MessageView({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold text-sm text-white hover:underline cursor-pointer">
-            {author?.displayname || author?.username || ""}
+          <span
+            className="font-semibold text-sm text-white hover:underline cursor-pointer"
+            onClick={onUserClick}
+          >
+            {author?.displayname}
           </span>
           <span className="text-xs text-gray-500">
             {message.createdAt.toLocaleString("en-GB", {

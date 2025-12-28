@@ -1,12 +1,10 @@
 import { create } from "zustand";
 import { api } from "@/app/libs/api";
-
-type User = NonNullable<
-  Awaited<ReturnType<(typeof api)["who-am-i"]["get"]>>["data"]
->["user"];
+import SuperJSON from "superjson";
+import type { UserData } from "./user-data";
 
 type UserState = {
-  user: User | null;
+  user: UserData | null;
   fetchUser: () => Promise<void>;
 };
 

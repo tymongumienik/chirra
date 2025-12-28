@@ -71,7 +71,6 @@ export function UserWidget({
         {showUserName && (
           <div className="text-xs text-gray-300">{userInfo?.username}</div>
         )}
-        <div className="text-xs text-gray-300">{userInfo?.profile?.bio}</div>
       </div>
       {buttons !== undefined && (
         <div className="flex items-center gap-2 transition-opacity">

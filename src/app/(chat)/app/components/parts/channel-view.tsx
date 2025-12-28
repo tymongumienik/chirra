@@ -1,5 +1,5 @@
 import { Plus, Smile } from "lucide-react";
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   type RequestMessageHistoryData,
   RequestMessageHistoryResponseCompiler,
@@ -12,6 +12,8 @@ import { useMessagesStore } from "../../scripts/stores/messages";
 import { useViewStore } from "../../scripts/stores/view";
 import { MessageView } from "../message-view";
 import { ChannelTopBar } from "./channel-top-bar";
+import { Modal } from "../modal";
+import { UserModal } from "../user-modal";
 
 export function ChannelView() {
   const { sendMessageAndWaitForReply } = useWebSocket();
@@ -78,6 +80,9 @@ export function ChannelView() {
     });
   }, [fetchMessages]);
 
+  const [openUserModalId, setOpenUserModalId] = useState<string | null>(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
   // infinite scroll for older messages
   const handleScroll = () => {
     const container = containerRef.current;
@@ -99,9 +104,15 @@ export function ChannelView() {
     }
   };
 
+  const closeModal = () => setIsUserModalOpen(false);
+
   return (
     <div className="flex-1 flex flex-col inter">
       <ChannelTopBar />
+
+      <Modal isOpen={isUserModalOpen} onClose={closeModal}>
+        <UserModal userId={openUserModalId} />
+      </Modal>
 
       <div
         className="flex-1 flex flex-col overflow-y-auto"
@@ -110,7 +121,15 @@ export function ChannelView() {
       >
         <div className="flex flex-col mt-auto">
           {messages.map((msg) => (
-            <MessageView key={msg.id} authorId={msg.authorId} message={msg} />
+            <MessageView
+              key={msg.id}
+              authorId={msg.authorId}
+              message={msg}
+              onUserClick={() => {
+                setOpenUserModalId(msg.authorId);
+                setIsUserModalOpen(true);
+              }}
+            />
           ))}
         </div>
       </div>

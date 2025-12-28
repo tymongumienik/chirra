@@ -19,8 +19,15 @@ export const whoAmI = async ({
       id: true,
       username: true,
       displayname: true,
-      email: true,
-      profile: true,
+      createdAt: true,
+      profile: {
+        select: {
+          avatar: true,
+          bio: true,
+          pronouns: true,
+          location: true,
+        },
+      },
     },
   });
 

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { UserDetailsLetter } from "@/app/api/[[...slugs]]/ws/shared-schema";
+import { useUserStore } from "./who-am-i";
 
 export type UserData = (typeof UserDetailsLetter)["static"]["users"][number];
 
@@ -29,7 +30,11 @@ export const useUserDataStore = create<UserDataStore>()(
         set(() => ({
           userData: { ...get().userData, [user.id]: user },
         })),
-      getUser: (id) => get().userData[id],
+      getUser: (id) => {
+        const currentUser = useUserStore.getState().user;
+        if (id === currentUser?.id) return currentUser;
+        return get().userData[id];
+      },
     }),
     {
       name: "user-data",
