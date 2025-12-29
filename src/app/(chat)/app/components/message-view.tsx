@@ -22,15 +22,16 @@ export function MessageView({
         <Image
           src={"/default-avatar.png"}
           alt={author?.displayname || author?.username || ""}
-          className="rounded-full"
+          className="rounded-full cursor-pointer"
           width={40}
           height={40}
+          onClick={onUserClick}
         />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <span
-            className="font-semibold text-sm text-white hover:underline cursor-pointer"
+            className="font-semibold text-sm text-white cursor-pointer"
             onClick={onUserClick}
           >
             {author?.displayname}
