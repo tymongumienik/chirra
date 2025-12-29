@@ -1,3 +1,5 @@
+"use client";
+
 import { LoaderCircle } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import {

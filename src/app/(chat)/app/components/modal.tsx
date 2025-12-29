@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: overlay and backdrop interactions for closing modal */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: overlay and backdrop interactions for closing modal */
+"use client";
 
 import { type ReactNode, useEffect, useState } from "react";
 

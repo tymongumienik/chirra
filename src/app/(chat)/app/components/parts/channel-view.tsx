@@ -1,3 +1,5 @@
+"use client";
+
 import { Plus, Smile } from "lucide-react";
 import {
   type ChangeEvent,

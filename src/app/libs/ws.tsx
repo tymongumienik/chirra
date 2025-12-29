@@ -1,3 +1,5 @@
+"use client";
+
 import type { Static, TSchema } from "elysia";
 import type React from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
