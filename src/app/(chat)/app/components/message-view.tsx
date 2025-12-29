@@ -16,6 +16,43 @@ export function MessageView({
 }) {
   const author = useUserDataStore((s) => s.getUser(authorId));
 
+  const now = new Date();
+  const created = message.createdAt;
+
+  const isToday =
+    created.getDate() === now.getDate() &&
+    created.getMonth() === now.getMonth() &&
+    created.getFullYear() === now.getFullYear();
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+
+  const isYesterday =
+    created.getDate() === yesterday.getDate() &&
+    created.getMonth() === yesterday.getMonth() &&
+    created.getFullYear() === yesterday.getFullYear();
+
+  const time = created.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const full = created.toLocaleString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const dateLabel = isToday
+    ? `Today at ${time}`
+    : isYesterday
+      ? `Yesterday at ${time}`
+      : full;
+
   return (
     <div className="flex gap-2 px-4 py-2 hover:bg-gray-900/30 group">
       <div className="shrink-0 mr-1">
@@ -36,15 +73,7 @@ export function MessageView({
           >
             {author?.displayname}
           </span>
-          <span className="text-xs text-gray-500">
-            {message.createdAt.toLocaleString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <span className="text-xs text-gray-500">{dateLabel}</span>
         </div>
         <div className="text-white text-sm leading-relaxed">
           {message.content}
