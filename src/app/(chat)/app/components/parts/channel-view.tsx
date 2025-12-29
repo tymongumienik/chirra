@@ -236,6 +236,7 @@ export function ChannelView() {
               "message",
             ) as HTMLInputElement;
             setLastTypedAt(null);
+            setIsTyping(false);
             console.log("Send:", input.value);
             input.value = "";
           }}

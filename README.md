@@ -16,6 +16,7 @@ Chirra (`/ˈkʲira/`) is a full-stack Next.js chat service, powered by WebSocket
 - Zustand
 - React Query
 - Elysia (Eden Treaty)
+- SuperJSON (for API/WS responses)
 - Prisma (with PostgreSQL)
 - Lucia
 - React Email & Nodemailer
