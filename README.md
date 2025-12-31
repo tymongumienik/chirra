@@ -30,8 +30,9 @@ You'll need Bun and PostgreSQL installed.
 # Install deps
 bun install
 
-# Copy env file and fill it out
-cp .env.example .env
+# Copy example env files and fill them out
+cp .env.development.example .env.development
+cp .env.production.example .env.production
 
 # Set up the database
 bunx prisma generate
@@ -40,6 +41,9 @@ bunx prisma db push
 # Start dev server
 chmod +x ./start-development.sh
 ./start-development.sh
+
+# Start production server
+docker-compose up --build
 ```
 
 Make sure to update the `.env` file with your actual database credentials and SMTP settings.

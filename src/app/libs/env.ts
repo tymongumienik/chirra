@@ -34,12 +34,16 @@ function getEnvVarNumber(key: string, defaultValue?: number): number {
 
 export const env = {
   // Database
-  DATABASE_URL: getEnvVar("DATABASE_URL"),
+  DATABASE_URL:
+    getEnvVarOptional("DATABASE_URL") ??
+    (() =>
+      `postgres://${getEnvVar("POSTGRES_USER")}:${getEnvVar("POSTGRES_PASSWORD")}@${getEnvVar("POSTGRES_HOST")}:5432/${getEnvVar("POSTGRES_DB")}`)(),
 
   // Email
   EMAIL_HOST: getEnvVar("EMAIL_HOST"),
   EMAIL_PORT: getEnvVarNumber("EMAIL_PORT"),
   EMAIL_USER: getEnvVar("EMAIL_USER"),
+  EMAIL_USER_FROM: getEnvVar("EMAIL_USER_FROM"),
   EMAIL_PASS: getEnvVar("EMAIL_PASS"),
   EMAIL_APP_URL: getEnvVar("EMAIL_APP_URL"),
   EMAIL_SECURE:
@@ -64,6 +68,7 @@ try {
   env.EMAIL_HOST;
   env.EMAIL_PORT;
   env.EMAIL_USER;
+  env.EMAIL_USER_FROM;
   env.EMAIL_PASS;
   env.EMAIL_APP_URL;
   env.ALLOWED_ORIGINS;

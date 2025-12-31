@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sender = `Chirra <${env.EMAIL_USER}>`;
+const sender = `Chirra <${env.EMAIL_USER_FROM}>`;
 
 export async function sendVerificationEmail(to: string, token: string) {
   const verificationUrl = `${env.EMAIL_APP_URL}/verify-email/${token}`;
