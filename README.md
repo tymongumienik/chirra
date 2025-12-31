@@ -38,7 +38,8 @@ bunx prisma generate
 bunx prisma db push
 
 # Start dev server
-bun run dev
+chmod +x ./start-development.sh
+./start-development.sh
 ```
 
 Make sure to update the `.env` file with your actual database credentials and SMTP settings.
