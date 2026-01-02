@@ -103,7 +103,8 @@ export type WebSocketRoute = {
 };
 
 export function isActive(userid: string) {
-  return connectedClients.has(userid);
+  const clients = connectedClients.get(userid);
+  return !!clients && clients.size > 0;
 }
 
 export function updateLastSeen(userId: string) {
@@ -137,10 +138,20 @@ async function announceStatusToFriends(userId: string) {
   );
 }
 
-async function removeUserOnline(userId: string) {
-  connectedClients.delete(userId);
-  announceStatusToFriends(userId);
-  logger.info(`Client removed from WebSocket registry for user ${userId}`);
+async function removeClientConnection(userId: string, connectionId: string) {
+  const userConnections = connectedClients.get(userId);
+  if (userConnections) {
+    userConnections.delete(connectionId);
+    if (userConnections.size === 0) {
+      connectedClients.delete(userId);
+      await announceStatusToFriends(userId);
+      unsubscribeUserFromAllChannels(userId);
+      logger.info(`All clients disconnected for user ${userId}`);
+    }
+
+    tryRemoveTypingState(userId, connectionId);
+    sendTypingStateLetter(userId);
+  }
 }
 
 export const UPGRADE = (
@@ -231,12 +242,21 @@ export const UPGRADE = (
 
       // Add to connected clients if not already added this session
       if (user && !authenticatedUserId) {
+        if (client.readyState !== WebSocket.OPEN) {
+          disconnect({ force: true });
+          return;
+        }
+
         authenticatedUserId = user.id;
         if (!connectedClients.has(user.id)) {
-          connectedClients.set(user.id, new Set());
+          connectedClients.set(user.id, new Map());
         }
-        connectedClients.get(user.id)?.add(client);
-        logger.info(`Client added to WebSocket registry for user ${user.id}`);
+        connectedClients.get(user.id)?.set(connectionId, client);
+        logger.info(
+          `Client ${connectionId} added to WebSocket registry for user ${user.id}`,
+        );
+
+        await announceStatusToFriends(user.id);
       }
 
       route({
@@ -256,9 +276,7 @@ export const UPGRADE = (
 
   client.once("close", async () => {
     if (authenticatedUserId) {
-      unsubscribeUserFromAllChannels(authenticatedUserId);
-      tryRemoveTypingState(authenticatedUserId, connectionId);
-      sendTypingStateLetter(authenticatedUserId);
+      await removeClientConnection(authenticatedUserId, connectionId);
     }
     logger.info("A client disconnected from WebSocket");
   });
@@ -267,15 +285,13 @@ export const UPGRADE = (
     if (
       authenticatedUserId &&
       lastSeen.has(authenticatedUserId) &&
-      connectedClients.has(authenticatedUserId)
+      isActive(authenticatedUserId)
     ) {
       const lastSeenTime = lastSeen.get(authenticatedUserId);
       if (lastSeenTime && (Date.now() - lastSeenTime) / 1000 > 15) {
-        removeUserOnline(authenticatedUserId);
-        clearInterval(interval);
         disconnect({ force: true });
         logger.info(
-          `Client removed from WebSocket registry for user ${authenticatedUserId}`,
+          `Client ${connectionId} timed out for user ${authenticatedUserId}`,
         );
       }
     }
@@ -293,7 +309,7 @@ export const sendWebSocketMessageToUser = (
     const sockets = connectedClients.get(userId);
     if (sockets) {
       const payload = superjson.stringify({ message, data });
-      for (const socket of sockets) {
+      for (const socket of sockets.values()) {
         if (socket.readyState === WebSocket.OPEN) {
           socket.send(payload);
         }

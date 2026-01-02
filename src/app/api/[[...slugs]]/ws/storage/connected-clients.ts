@@ -1,1 +1,4 @@
-export const connectedClients = new Map<string, Set<import("ws").WebSocket>>();
+export const connectedClients = new Map<
+  string,
+  Map<string, import("ws").WebSocket>
+>();
