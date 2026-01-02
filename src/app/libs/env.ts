@@ -72,6 +72,14 @@ try {
   env.EMAIL_PASS;
   env.EMAIL_APP_URL;
   env.ALLOWED_ORIGINS;
+  if (
+    env.IS_PRODUCTION &&
+    (env.ALLOWED_ORIGINS === undefined ||
+      env.ALLOWED_ORIGINS === null ||
+      env.ALLOWED_ORIGINS.length < 1)
+  ) {
+    throw new Error("ALLOWED_ORIGINS is required in production");
+  }
 } catch (error) {
   console.error("Environment validation failed:", error);
   throw error;

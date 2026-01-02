@@ -30,8 +30,8 @@ import { typingUpdateStateHandler } from "./ws/handlers/typing-update-state";
 const corsConfig = {
   origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"] as HTTPMethod[],
-  allowedHeaders: "*",
-  exposedHeaders: "*",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Authorization"],
   maxAge: 5,
   credentials: true,
 };

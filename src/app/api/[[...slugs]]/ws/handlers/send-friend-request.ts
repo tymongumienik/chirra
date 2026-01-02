@@ -54,7 +54,7 @@ const sendFriendRequestHandler: WebSocketRoute = {
         const blockedMessage =
           existingRequest.requesterId === requestingUser
             ? "Unblock this user before sending them a friend request!"
-            : "This user has blocked you.";
+            : "User not found.";
 
         response = {
           success: false,
