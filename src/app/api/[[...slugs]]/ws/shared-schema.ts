@@ -105,6 +105,14 @@ export const ChannelSetSubscriptionStateDataCompiler = TypeCompiler.Compile(
 
 export const TypingUpdateStateData = t.Object({
   typing: t.Boolean(),
+  location: t.Union([
+    t.Object({
+      channel: t.String(),
+    }),
+    t.Object({
+      user: t.String(),
+    }),
+  ]),
 });
 
 export const TypingUpdateStateDataCompiler = TypeCompiler.Compile(

@@ -20,6 +20,10 @@ export const getLocationOfUser = (
   return userSubscriptions.get(who)?.values().next().value;
 };
 
+export const getUserSubscriptions = (who: string) => {
+  return Array.from(userSubscriptions.get(who)?.values() || []);
+};
+
 export const getUsersSubscribedToLocation = (
   where: string | [string, string],
 ): string[] => {

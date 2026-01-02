@@ -141,8 +141,9 @@ export function ChannelView() {
   useEffect(() => {
     sendMessage<typeof TypingUpdateStateData>("void:typing-update-state", {
       typing: isTyping,
+      location,
     });
-  }, [sendMessage, isTyping]);
+  }, [sendMessage, isTyping, location]);
 
   useEffect(() => {
     const unsub = subscribe((message, data) => {

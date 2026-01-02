@@ -24,7 +24,10 @@ import { ReceivedMessageCompiler } from "./ws/shared-schema";
 import { connectedClients } from "./ws/storage/connected-clients";
 import { lastSeen } from "./ws/storage/last-seen";
 import { channelSetSubscriptionStateHandler } from "./ws/handlers/channel-subscribe";
-import { unsubscribeUserFromAllChannels } from "./ws/storage/channel-subscription-pairs";
+import {
+  getUserSubscriptions,
+  unsubscribeUserFromAllChannels,
+} from "./ws/storage/channel-subscription-pairs";
 import { typingUpdateStateHandler } from "./ws/handlers/typing-update-state";
 import { sendTypingStateLetter } from "./ws/letters/typing-state";
 import { tryRemoveTypingState } from "./ws/storage/typing-state";
@@ -150,7 +153,11 @@ async function removeClientConnection(userId: string, connectionId: string) {
     }
 
     tryRemoveTypingState(userId, connectionId);
-    sendTypingStateLetter(userId);
+
+    const subscriptions = getUserSubscriptions(userId);
+    for (const location of subscriptions) {
+      sendTypingStateLetter(userId, location);
+    }
   }
 }
 

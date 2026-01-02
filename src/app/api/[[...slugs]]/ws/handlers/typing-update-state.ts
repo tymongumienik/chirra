@@ -13,7 +13,7 @@ const typingUpdateStateHandler: WebSocketRoute = {
       return;
     }
 
-    const { typing } = data;
+    const { typing, location } = data;
 
     if (typing) {
       tryAddTypingState(user.id, connectionId);
@@ -21,7 +21,7 @@ const typingUpdateStateHandler: WebSocketRoute = {
       tryRemoveTypingState(user.id, connectionId);
     }
 
-    sendTypingStateLetter(user.id);
+    sendTypingStateLetter(user.id, location);
   },
 };
 
