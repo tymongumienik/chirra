@@ -8,7 +8,7 @@ import { sendTypingStateLetter } from "../letters/typing-state";
 
 const typingUpdateStateHandler: WebSocketRoute = {
   message: "void:typing-update-state",
-  execute: async ({ data, user }) => {
+  execute: async ({ data, user, connectionId }) => {
     if (!TypingUpdateStateDataCompiler.Check(data)) {
       return;
     }
@@ -16,9 +16,9 @@ const typingUpdateStateHandler: WebSocketRoute = {
     const { typing } = data;
 
     if (typing) {
-      tryAddTypingState(user.id);
+      tryAddTypingState(user.id, connectionId);
     } else {
-      tryRemoveTypingState(user.id);
+      tryRemoveTypingState(user.id, connectionId);
     }
 
     sendTypingStateLetter(user.id);

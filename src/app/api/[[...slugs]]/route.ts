@@ -26,6 +26,8 @@ import { lastSeen } from "./ws/storage/last-seen";
 import { channelSetSubscriptionStateHandler } from "./ws/handlers/channel-subscribe";
 import { unsubscribeUserFromAllChannels } from "./ws/storage/channel-subscription-pairs";
 import { typingUpdateStateHandler } from "./ws/handlers/typing-update-state";
+import { sendTypingStateLetter } from "./ws/letters/typing-state";
+import { tryRemoveTypingState } from "./ws/storage/typing-state";
 
 const corsConfig = {
   origin: env.IS_PRODUCTION ? (env.ALLOWED_ORIGINS ?? []) : true,
@@ -92,6 +94,7 @@ export type WebSocketRoute = {
     data: Record<string, unknown> | null;
     user: User;
     session: Session;
+    connectionId: string;
     reply: <R extends Record<string, unknown> | null>(
       message: string,
       data?: R,
@@ -166,6 +169,7 @@ export const UPGRADE = (
   logger.info("A client connected to WebSocket");
 
   let authenticatedUserId: string | null = null;
+  const connectionId = crypto.randomUUID();
 
   const firstMessageTimeout = setTimeout(() => {
     disconnect({ force: true });
@@ -239,6 +243,7 @@ export const UPGRADE = (
         data: messageParsed.data,
         user: user as User,
         session: session as Session,
+        connectionId,
         reply: <R extends Record<string, unknown> | null>(
           message: string,
           data?: R,
@@ -252,6 +257,8 @@ export const UPGRADE = (
   client.once("close", async () => {
     if (authenticatedUserId) {
       unsubscribeUserFromAllChannels(authenticatedUserId);
+      tryRemoveTypingState(authenticatedUserId, connectionId);
+      sendTypingStateLetter(authenticatedUserId);
     }
     logger.info("A client disconnected from WebSocket");
   });

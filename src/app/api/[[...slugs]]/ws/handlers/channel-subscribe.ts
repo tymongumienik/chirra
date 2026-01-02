@@ -9,7 +9,7 @@ import { tryRemoveTypingState } from "../storage/typing-state";
 
 const channelSetSubscriptionStateHandler: WebSocketRoute = {
   message: "void:set-channel-subscription-state",
-  execute: async ({ data, user }) => {
+  execute: async ({ data, user, connectionId }) => {
     if (!ChannelSetSubscriptionStateDataCompiler.Check(data)) {
       return;
     }
@@ -22,7 +22,7 @@ const channelSetSubscriptionStateHandler: WebSocketRoute = {
         subscribeToChannel(location.channel, user.id);
       } else {
         unsubscribeFromChannel(location.channel, user.id);
-        tryRemoveTypingState(user.id);
+        tryRemoveTypingState(user.id, connectionId);
       }
     } else {
       // DM
@@ -35,7 +35,7 @@ const channelSetSubscriptionStateHandler: WebSocketRoute = {
         subscribeToChannel([user.id, location.user], user.id);
       } else {
         unsubscribeFromChannel([user.id, location.user], user.id);
-        tryRemoveTypingState(user.id);
+        tryRemoveTypingState(user.id, connectionId);
       }
     }
 
