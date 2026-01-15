@@ -6,7 +6,7 @@
 
 Chirra (`/ˈkʲira/`) is a full-stack Next.js chat service, powered by WebSockets.
 
-> Chirra is in very early development and is not ready for any production use.
+> Chirra is in very early development and is not ready for any production use. Due to the nearing Matura exams, the project is on a temporary hiatus.
 
 ## Stack
 
